@@ -1,0 +1,44 @@
+{% extends 'bikes/base.html' %}
+{% load bikes_filters %}
+{% load static %}
+
+{% block title %}
+	Register
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-10 offset-1 col-md-6 offset-md-3">
+        {% if user.is_authenticated %}
+            <h2 class="my-4 text-success">{{user.username}}, you're already logged in!</h2>
+            <a href="{% url 'bikes:index' %}">Click here</a> to return to the homepage.
+        {% else %}
+        <div class="card mt-5">
+        <div class="card-header">
+            <h3 class="mb-0">Sign Up</h3>
+        </div>
+        <form action="{% url 'bikes:register' %}" method="POST" autocomplete="off">
+            {% csrf_token %}
+            <div class="card-body m-2">
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag}}
+                        {{ field|add_class:"form-control" }}
+                        {% if field.errors %}
+                            {% for err in field.errors %}
+                                <label class="error">{{ err }}</label>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+                
+            </div>
+        </form>
+    </div>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
