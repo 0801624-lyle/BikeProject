@@ -38,8 +38,8 @@ class BikeHires(models.Model):
         This model tracks which user hired the bike, the bike id, start/end stations, and the duration of the journey.
         Also has a field for the charges/cost of the hire - this is based on the duration of the journey.
     """
-    user_id = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True)
-    bike_id = models.ForeignKey(Bikes, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True)
+    bike = models.ForeignKey(Bikes, on_delete=models.CASCADE, null=True)
     date_hired = models.DateTimeField(auto_now_add=True)
     date_returned = models.DateTimeField(null=True, blank=True) # allow null for current hires
     start_station = models.ForeignKey(Location, on_delete=models.SET_NULL, blank=True, null=True, related_name="start_station")
