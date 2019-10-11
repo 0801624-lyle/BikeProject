@@ -45,6 +45,7 @@ class BikeHires(models.Model):
     start_station = models.ForeignKey(Location, on_delete=models.SET_NULL, blank=True, null=True, related_name="start_station")
     end_station = models.ForeignKey(Location, on_delete=models.SET_NULL, blank=True, null=True,  related_name="end_station")
     charges = models.FloatField(null=True, blank=True) # Tracks how much the user was charged for the hire
+    discount_applied = models.ForeignKey("Discounts", on_delete=models.SET_NULL, blank=True, null=True)
 
     def get_duration(self):
         """ Gets the length of the hire. If the hire is still ongoing, returns current amount of time hired """

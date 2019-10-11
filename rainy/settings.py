@@ -1,5 +1,7 @@
 import os
 
+from django.utils import timezone
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
@@ -121,10 +123,14 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# COST SETTINGS
-BASIC_COSTS = {
+# CHARGE SETTINGS
+BASIC_CHARGES = {
     "standard": 2,
     "student": 1,
     "pensioner": .50,
     "staff": .10
 }
+
+STANDARD_CHARGE_TIME_MAX = timezone.timedelta(minutes=30)
+TIME_EXCEEDED_INTERVAL = timezone.timedelta(minutes=30)
+CHARGE_PER_INTERVAL = 1
