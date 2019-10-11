@@ -29,7 +29,7 @@
                     <a class="nav-link" href="#">Bike Activity</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Profile</a>
+                    <a class="nav-link" href="{% url 'bikes:profile' %}">Profile</a>
                 </li>
                 {% if can_view_manager %}
                     <li class="nav-item">
@@ -40,7 +40,7 @@
             <ul class="navbar-nav mr-4">
                 {% if request.user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link">Profile</a>
+                        <a class="nav-link" href="{% url 'bikes:profile' %}">Profile</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'bikes:logout' %}">Logout</a>

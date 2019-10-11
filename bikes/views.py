@@ -25,3 +25,6 @@ class RegistrationView(SuccessMessageMixin, CreateView):
         user = authenticate(username=username, password=pw)
         login(self.request, user)
         return valid
+
+def profile(request):
+    return render(request, 'bikes/profile.html')
