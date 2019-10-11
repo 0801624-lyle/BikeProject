@@ -2,7 +2,7 @@
 {% load bikes_filters %}
 {% load static %}
 
-{% block title %}
+{% block title_block %}
 	Register
 {% endblock %}
 
@@ -27,13 +27,18 @@
                         {{ field|add_class:"form-control" }}
                         {% if field.errors %}
                             {% for err in field.errors %}
-                                <label class="error">{{ err }}</label>
+                                <label class="error text-danger mt-2">{{ err }}</label>
                             {% endfor %}
                         {% endif %}
+                        
+                        <div class="ajax-err d-none">
+                            <i class="zmdi zmdi-alert-triangle text-danger"></i>
+                            <label class="text-danger mt-2"></label>
+                        </div>
                     </div>
                 {% endfor %}
 
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" id="register-submit" class="btn btn-primary">Submit</button>
                 
             </div>
         </form>
@@ -41,4 +46,45 @@
     {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script>
+$(document).ready(function() {
+
+    // Username AJAX request
+    $("#id_username").on('keyup', function() {
+        var username = $(this).val()
+        $.get('ajax/check_username/', data={'username': username}, function(data) {
+            var element = $("#id_username").siblings(".ajax-err")
+            if (data.username_exists) {
+                $(element).removeClass('d-none')
+                $(element).children("label").text("Username already exists!")
+                $("#register-submit").prop('disabled', true)
+            } else {
+                $(element).children("label").text("")
+                $(element).addClass("d-none")
+                $("#register-submit").prop('disabled', false)
+            }
+        })
+    })
+
+    // Email AJAX request
+    $("#id_email").on('keyup', function() {
+        var email = $(this).val()
+        $.get('ajax/check_email/', data={'email': email}, function(data) {
+            var element = $("#id_email").siblings(".ajax-err")
+            if (data.email_exists) {
+                $(element).removeClass('d-none')
+                $(element).children("label").text("This email address has been taken!")
+                $("#register-submit").prop('disabled', true)
+            } else {
+                $(element).children("label").text("")
+                $(element).addClass("d-none")
+                $("#register-submit").prop('disabled', false)
+            }
+        })
+    })
+});
+</script>
 {% endblock %}
