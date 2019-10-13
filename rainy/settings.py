@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bikes',
-    'django_extensions'
+    'rest_framework',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -131,6 +132,10 @@ BASIC_CHARGES = {
     "staff": .10
 }
 
+# Standard ride must be under 30 minutes [STANDARD_CHARGE_TIME_MAX]
 STANDARD_CHARGE_TIME_MAX = timezone.timedelta(minutes=30)
+
+# The charge period when a ride exceeds 30 minutes, is £1 [CHARGE_PER_INTERVAL]
+# per additional 30 minute interval [TIME_EXCEEDED_INTERVAL]
 TIME_EXCEEDED_INTERVAL = timezone.timedelta(minutes=30)
 CHARGE_PER_INTERVAL = 1

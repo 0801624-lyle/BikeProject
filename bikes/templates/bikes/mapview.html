@@ -1,0 +1,53 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    View Map
+{% endblock %}
+
+{% block content %}
+    <div id="map" class="my-2 col-12"></div>
+{% endblock %}
+
+{% block js %}
+<script>
+function initMap() {
+    var glasgow = {lat: 55.8642, lng: -4.2518};
+    var endpoint = "{{ locations_api|safe }}"
+    
+    var map = new google.maps.Map(
+        document.getElementById('map'), {zoom: 13, center: glasgow}
+    );
+    var infoWindow = new google.maps.InfoWindow;
+
+    $.get(endpoint, function(data) {
+        
+        for (var location of data) {
+            var position = {
+                lat: location.latitude, 
+                lng: location.longitude
+            }
+            var marker = new google.maps.Marker({position: position, map: map});
+            var infowincontent = document.createElement('div');
+              var strong = document.createElement('strong');
+              strong.textContent = location.station_name
+              infowincontent.appendChild(strong);
+              infowincontent.appendChild(document.createElement('br'));
+              var text = document.createElement('text');
+              text.textContent = location.bikes_set.length + " bikes available"
+              infowincontent.appendChild(text);
+              google.maps.event.addListener(marker, 'click', (function(marker, infowincontent, infoWindow) {
+                    return function() {
+                        infoWindow.setContent(infowincontent);
+                        infoWindow.open(map, marker);
+                    }
+              })(marker, infowincontent, infoWindow));
+        }
+    })
+}
+
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr91yE-43L7KqAMSiS0IrIxZLcIkwGNVk&callback=initMap">
+</script>
+{% endblock %}
+

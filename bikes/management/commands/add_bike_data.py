@@ -44,8 +44,8 @@ class Command(BaseCommand):
         ]
         for user in users:
             db_user = get_user_model().objects.create_user(**user)
-            # create the profile too
-            UserProfile.objects.create(user=db_user, user_type=UserType.MANAGER)
+            # set these users as managers
+            UserProfile.objects.filter(user=db_user).update(user_type=UserType.MANAGER)
         
         # create operators and customers user
         for i in range(3):
@@ -55,9 +55,8 @@ class Command(BaseCommand):
             operator = User.objects.create_user(
                 username=f"operator{i}", password="password", email=f"operator{i}@gmail.com"
             )
-            UserProfile.objects.create(user=customer, user_type=UserType.CUSTOMER)
-            UserProfile.objects.create(user=operator, user_type=UserType.OPERATOR)
-
+            UserProfile.objects.filter(user=customer).update(user_type=UserType.CUSTOMER)
+            UserProfile.objects.filter(user=operator).update(user_type=UserType.OPERATOR)
     
     def create_bikes(self):
         locations = Location.objects.all()

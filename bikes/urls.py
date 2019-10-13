@@ -7,6 +7,7 @@ app_name = 'bikes'
 
 urlpatterns = [
     path('', views.index, name = 'index'),
+    path('view-map/', views.view_map, name='view-map'),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),
@@ -16,5 +17,7 @@ urlpatterns = [
 
     # ajax views
     path('register/ajax/check_username/', views.validate_username, name='ajax_check_username'),
-    path('register/ajax/check_email/', views.validate_email, name='ajax_check_email')
+    path('register/ajax/check_email/', views.validate_email, name='ajax_check_email'),
+    
+    path('api/list/locations', views.LocationList.as_view(), name='location_list')
 ]

@@ -3,14 +3,28 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.generic.edit import CreateView
+from rest_framework.generics import ListAPIView
 
 from .forms import RegistrationForm
-
+from .models import Location
+from .serializers import LocationSerializer
 
 # Create your views here.
 def index(request):
     return render(request, 'bikes/index.html', {})
+
+def view_map(request):
+    locations = Location.objects.all()
+    locations_api = reverse('bikes:location_list')
+
+    context = {
+        "locations": locations,
+        "locations_api": locations_api
+    }
+    return render(request, 'bikes/mapview.html', context)
+
 
 def profile(request):
     return HttpResponse("profile") 
@@ -56,3 +70,8 @@ def validate_email(request):
     return JsonResponse({
         "email_exists": email_exists
     })
+
+
+class LocationList(ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
