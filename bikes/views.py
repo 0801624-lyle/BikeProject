@@ -38,9 +38,13 @@ def location_detail(request, pk):
     except Location.DoesNotExist:
         return HttpResponse("Location not found")
 
+    bikes = location.bikes_set.all()
+    num_bikes = bikes.count()
+
     context = {
         "location": location,
-        "bikes": location.bikes_set.all()
+        "bikes": bikes,
+        "num_bikes": num_bikes
     }
 
     return render(request, 'bikes/location.html', context)

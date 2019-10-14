@@ -10,14 +10,17 @@
         <div class="row">
             <div class="col-12 col-md-6">
                 <div class="mt-4 d-flex justify-content-between">
-                    <h3 class="text-primary d-inline">Locations</h3>
-                    <form class="form-inline" action="" method="get" id="postcode-input">
-                        <div class="form-group">
-                            <input class="form-control-sm" type="text" placeholder="Find nearest station..."/>
-                        </div>
-                        <button type="submit" id="submit-postcode" 
-                            class="btn btn-success btn-sm">Submit</button>
-                    </form>
+                    <h3 class="text-success d-inline">Locations</h3>
+                    <div>
+                        <form class="form-inline" action="" method="get" id="postcode-input">
+                            <div class="form-group">
+                                <input class="form-control-sm" type="text" placeholder="Find nearest station..."/>
+                            </div>
+                            <button type="submit" id="submit-postcode" 
+                                class="btn btn-success btn-sm ml-1">Submit</button>
+                        </form>
+
+                    </div>
                 </div>
                 <hr/>
 
@@ -84,6 +87,7 @@ function initMap() {
     );
     var infoWindow = new google.maps.InfoWindow;
 
+    /* Make request for location data */
     $.get(endpoint, function(data) {
         
         for (var location of data) {

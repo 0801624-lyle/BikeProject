@@ -6,11 +6,54 @@
 {% endblock %}
 
 {% block content %}
-    {{ location.station_name }}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6">
+
+            </div>
+            <div class="col-12 col-md-6">
+                <div id="map" class="my-2 col-12"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
-    <script>
+<script>
 
-    </script>
+function initMap() {
+    var lat = "{{ location.latitude|safe }}"
+    var lon = "{{ location.longitude|safe }}"
+    var station = "{{ location.station_name|safe }}"
+    var numbikes = "{{ num_bikes|safe }}"
+
+    var location = {lat: parseFloat(lat), lng: parseFloat(lon)};
+    console.log(location)
+    
+    var map = new google.maps.Map(
+        document.getElementById('map'), {zoom: 13, center: location}
+    );
+
+    var marker = new google.maps.Marker({position: location, map: map});
+
+    var infoWindow = new google.maps.InfoWindow;
+    var infowincontent = document.createElement('div');
+    var strong = document.createElement('strong');
+    strong.textContent = station
+    infowincontent.appendChild(strong);
+    infowincontent.appendChild(document.createElement('br'));
+    var text = document.createElement('text');
+    text.textContent = numbikes + " bikes available"
+    infowincontent.appendChild(text);
+    google.maps.event.addListener(marker, 'click', (function(marker, infowincontent, infoWindow) {
+        return function() {
+            infoWindow.setContent(infowincontent);
+            infoWindow.open(map, marker);
+        }
+    })(marker, infowincontent, infoWindow));
+    }
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr91yE-43L7KqAMSiS0IrIxZLcIkwGNVk&callback=initMap">
+</script>
 {% endblock %}
