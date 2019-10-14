@@ -6,7 +6,30 @@
 {% endblock %}
 
 {% block content %}
-    <div id="map" class="my-2 col-12"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="mt-4 d-flex justify-content-between">
+                    <h3 class="text-primary d-inline">Locations</h3>
+                    <form class="form-inline" action="" method="get" id="postcode-input">
+                        <div class="form-group">
+                            <input class="form-control-sm" type="text" placeholder="Find nearest station..."/>
+                        </div>
+                        <button type="submit" id="submit-postcode" 
+                            class="btn btn-success btn-sm">Submit</button>
+                    </form>
+                </div>
+                <hr/>
+
+                <!-- List locations -->
+                
+
+            </div>
+            <div class="col-12 col-md-6">
+                <div id="map" class="my-2 col-12"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
