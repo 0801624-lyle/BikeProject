@@ -23,6 +23,47 @@
 
                 <!-- List locations -->
                 
+                {% for location in locations %}
+                    <div class="mb-4 card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'bikes:location_detail' location.pk %}">{{ location.station_name }}</a>
+                            </h5>
+                            <p class="card-text">{{location.bikes_set.count}} bikes available</p>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            <!-- Pagination -->
+            <div class="pagination mt-4">
+                <ul class="pagination">
+                    {% if locations.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ locations.previous_page_number }}">
+                                {{ locations.previous_page_number }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ locations.number }}">
+                            {{ locations.number }}
+                        </a>
+                    </li>
+
+                    {% if locations.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ locations.next_page_number }}">
+                                {{ locations.next_page_number }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <span class="current ml-3">
+                        Page {{ locations.number }} of {{ locations.paginator.num_pages }}.
+                    </span>
+                </ul>
+            </div>
 
             </div>
             <div class="col-12 col-md-6">

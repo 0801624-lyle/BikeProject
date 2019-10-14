@@ -33,6 +33,9 @@ class Location(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
 
+    class Meta:
+        ordering = ("station_name",)
+
 class BikeHires(models.Model):
     """ A table that tracks all historical bike hires.
         This model tracks which user hired the bike, the bike id, start/end stations, and the duration of the journey.

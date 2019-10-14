@@ -1,8 +1,9 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
@@ -19,12 +20,30 @@ def view_map(request):
     locations = Location.objects.all()
     locations_api = reverse('bikes:location_list')
 
+    paginator = Paginator(locations, 5)
+
+    page = request.GET.get('page', 1)
+    locations = paginator.get_page(page)
+
     context = {
         "locations": locations,
         "locations_api": locations_api
     }
     return render(request, 'bikes/mapview.html', context)
 
+def location_detail(request, pk):
+    """ Individual location view """
+    try:
+        location = Location.objects.get(pk=pk)
+    except Location.DoesNotExist:
+        return HttpResponse("Location not found")
+
+    context = {
+        "location": location,
+        "bikes": location.bikes_set.all()
+    }
+
+    return render(request, 'bikes/location.html', context)
 
 def profile(request):
     return HttpResponse("profile") 
