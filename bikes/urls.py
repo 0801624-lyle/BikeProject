@@ -10,6 +10,8 @@ urlpatterns = [
 
     # login and registration views
     path('profile/', views.profile, name='profile'),
+    #path(r'^profile/(?P<username>\s)/$', views.profile, name='profile'),
+    path('addfunds/', views.addfunds, name='addfunds'),
     path('login/', auth_views.LoginView.as_view(template_name="bikes/login.html"), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name="logout"),
     path('register/', views.RegistrationView.as_view(), name='register'),

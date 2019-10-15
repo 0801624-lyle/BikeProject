@@ -13,7 +13,10 @@ def index(request):
     return render(request, 'bikes/index.html', {})
 
 def profile(request):
-    return HttpResponse("profile") 
+    return render(request, 'bikes/profile.html') 
+
+def addfunds(request):
+    return render(request, 'bikes/addfunds.html')
 
 
 
