@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bikes',
+    'reports',
     'rest_framework',
     'django_extensions',
 ]

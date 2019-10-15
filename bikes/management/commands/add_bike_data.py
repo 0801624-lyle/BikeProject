@@ -7,6 +7,7 @@ import datetime
 
 from bikes.choices import BikeStatus, UserType, MembershipType
 from bikes.models import *
+from reports.models import *
 
 class Command(BaseCommand):
 
@@ -62,9 +63,15 @@ class Command(BaseCommand):
     
     def create_bikes(self):
         locations = Location.objects.all()
-        for _ in range(25):
+        for _ in range(85):
             location = random.choice(locations)
             Bikes.objects.create(location=location, status=BikeStatus.AVAILABLE)
+        for location in locations:
+            init_count = location.bikes_set.count()
+            location.initial_bike_count = init_count
+            d = timezone.make_aware(datetime.datetime(year=2019, month=1, day=1))
+            LocationBikeCount.objects.create(location=location, count=init_count, datetime=d)
+            location.save()
 
     def create_discount(self):
         date_from = timezone.now()
@@ -78,24 +85,35 @@ class Command(BaseCommand):
         locations = Location.objects.all()
         bikes = Bikes.objects.all()
         discount = Discounts.objects.first()
+        hires = []
         for i in range(250):
             duration = self._get_random_duration()
             start = self._get_random_datetime()
             end = start + timezone.timedelta(minutes=duration)
+            user = random.choice(users)
+            hire = BikeHires(user=user, date_hired=start, date_returned=end)
+
+            # Add discount to ~30% of the hires
+            if random.random() < 0.3:
+                hire.discount_applied = discount
+            hires.append(hire)
+        
+        # sort the hires in date order
+        hires = sorted(hires, key=lambda obj: obj.date_hired)
+        
+        for h in hires:
             bike = random.choice(bikes)
             start_station = bike.location
             end_station = random.choice(locations)
             if end_station.pk == start_station.pk:
                 locs = Location.objects.exclude(pk=end_station.pk)
                 end_station = random.choice(locs)
-            user = random.choice(users)
-            hire = BikeHires(user=user, bike=bike, start_station=start_station, end_station=end_station, \
-                date_hired=start, date_returned=end)
-
-            # Add discount to ~30% of the hires
-            if random.random() < 0.3:
-                hire.discount_applied = discount
-            hire.save()
+            h.bike = bike
+            h.start_station = start_station
+            h.end_station = end_station
+            h.save()
+            bike.location = h.end_station
+            bike.save()
 
     def _get_random_duration(self):
         time_ranges = [*list(range(1,36)), *list(range(36,50)), *list(range(50,80)), *list(range(80,500))]

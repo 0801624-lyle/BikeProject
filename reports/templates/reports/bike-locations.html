@@ -1,0 +1,47 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    Bike Location Report
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="mt-4 col-6">
+            <h4 class="text-primary">Current counts</h4>
+            <hr/>
+            {{ div|safe }}
+        </div>
+
+        <div class="mt-4 col-6">
+            <h4 class="text-primary">Location Time Series</h4>
+            <hr/>
+            <div class="justify-content-between d-flex">
+                <p class="font-weight-bold">{{ location_name }}</p>
+                <div class="dropdown">
+                    <i class="zmdi zmdi-filter-list" data-toggle="dropdown"></i>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        {% for location in locations %}
+                            <a class="dropdown-item location-time-dropdown" 
+                                href="{% url 'reports:bike_locations' %}?loc={{location.station_name}}">
+                                {{ location.station_name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {{ div2|safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+    {{ script|safe }}
+
+<script>
+
+</script>
+{% endblock %}

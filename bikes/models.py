@@ -32,6 +32,7 @@ class Location(models.Model):
     station_name = models.CharField(max_length = 200, unique=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
+    initial_bike_count = models.IntegerField(default=0)
 
     class Meta:
         ordering = ("station_name",)
@@ -43,7 +44,7 @@ class BikeHires(models.Model):
     """
     user = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True)
     bike = models.ForeignKey(Bikes, on_delete=models.CASCADE, null=True)
-    date_hired = models.DateTimeField(auto_now_add=True)
+    date_hired = models.DateTimeField()
     date_returned = models.DateTimeField(null=True, blank=True) # allow null for current hires
     start_station = models.ForeignKey(Location, on_delete=models.SET_NULL, blank=True, null=True, related_name="start_station")
     end_station = models.ForeignKey(Location, on_delete=models.SET_NULL, blank=True, null=True,  related_name="end_station")
@@ -57,6 +58,9 @@ class BikeHires(models.Model):
         else:
             now = timezone.now()
             return now - self.date_hired
+
+    class Meta:
+        ordering = ("date_hired",)
 
 class BikeRepairs(models.Model):
     """ A table to track all historical bike repairs """
