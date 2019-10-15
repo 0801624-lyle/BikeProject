@@ -50,7 +50,10 @@ def location_detail(request, pk):
     return render(request, 'bikes/location.html', context)
 
 def profile(request):
-    return HttpResponse("profile") 
+    return render(request, 'bikes/profile.html') 
+
+def addfunds(request):
+    return render(request, 'bikes/addfunds.html')
 
 
 
