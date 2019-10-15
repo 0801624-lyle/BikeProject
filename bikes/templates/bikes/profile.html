@@ -5,30 +5,33 @@
 {% endblock %}
 
 {% block content %}
-
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-    <h2>This is your {{user.username}}'s profile</h2>
+    <div class="container">
 
-    <table class="w3-table-all">
-        <tbody>
-            <tr>
-                <td>Username</td>
-                <td>{{user.username}}</td>
-            </tr>
-            <tr>
-                <td>Full name</td>
-                <td>{{user.firstname}} {{user.lastname}}</td>
-            </tr>
-            <tr>
-                <td>email</td>
-                <td>{{user.email}}</td>
-            </tr>
-            <tr>
-                <td>Balance</td>
-                <td>{{user.userprofile.balance}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <a type="button" href="/addfunds/">Add funds</a>
+        <h2>This is your {{user.username}}'s profile</h2>
+
+        <table class="w3-table-all">
+            <tbody>
+                <tr>
+                    <td>Username</td>
+                    <td>{{user.username}}</td>
+                </tr>
+                <tr>
+                    <td>Full name</td>
+                    <td>{{user.firstname}} {{user.lastname}}</td>
+                </tr>
+                <tr>
+                    <td>email</td>
+                    <td>{{user.email}}</td>
+                </tr>
+                <tr>
+                    <td>Balance</td>
+                    <td>{{user.userprofile.balance}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <a type="button" href="/addfunds/">Add funds</a>
+
+    </div>
 {% endblock %}
