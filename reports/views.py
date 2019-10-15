@@ -1,5 +1,5 @@
 import math
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import render
 
 from bokeh.plotting import figure
@@ -7,7 +7,7 @@ from bokeh.embed import components
 from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource
 from bokeh.palettes import Category20c, Spectral6
 
-from bikes.models import Bikes, Location
+from bikes.models import Bikes, Location, BikeHires
 
 
 def bike_locations(request):
@@ -21,15 +21,18 @@ def bike_locations(request):
     locations = Location.objects.annotate(bike_count=Count('bikes'))
     stations = [location.station_name for location in locations]
     bike_counts = [location.bike_count for location in locations]
-    plot = figure(x_range=stations, plot_height=400, plot_width=420, title="Bikes per location", toolbar_location="below")
+    plot = figure(x_range=stations, plot_height=400,  title="Bikes per location", toolbar_location="below")
     source = ColumnDataSource(data=dict(stations=stations, bike_counts=bike_counts, color=Spectral6))
     plot.add_tools(LassoSelectTool())
-    plot.add_tools(WheelZoomTool())       
+    plot.add_tools(WheelZoomTool())
+    plot.add_tools(HoverTool())
 
     plot.vbar(x='stations', top='bike_counts', width=.8, color='color', source=source)
 
     plot.xgrid.grid_line_color = "black"
     plot.xaxis.major_label_orientation = math.pi/6
+    plot.min_border_left = 100
+    plot.min_border_right = 100
     plot.y_range.start = 0
     plot.y_range.end   = max(bike_counts) + 2
 
@@ -37,6 +40,7 @@ def bike_locations(request):
 
     # Time series graph
     hire_history = BikeHires.objects.filter(Q(start_station=loc)|Q(end_station=loc))
+
 
     context = {
         "script": script, 
