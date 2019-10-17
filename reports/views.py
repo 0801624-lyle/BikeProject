@@ -1,4 +1,5 @@
 import math
+from datetime import datetime
 from django.db.models import Count, Q
 from django.shortcuts import render
 
@@ -8,6 +9,7 @@ from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawToo
 from bokeh.palettes import Category20c, Spectral6
 
 from bikes.models import Bikes, Location, BikeHires
+from reports.models import LocationBikeCount
 
 
 def bike_locations(request):
@@ -39,13 +41,28 @@ def bike_locations(request):
     script, div = components(plot)
 
     # Time series graph
-    hire_history = BikeHires.objects.filter(Q(start_station=loc)|Q(end_station=loc))
-
+    hire_history = LocationBikeCount.objects.filter(location=loc).values()
+    dates = [hire['datetime'] for hire in hire_history]
+    count = [hire['count'] for hire in hire_history]
+    time_source = ColumnDataSource(
+        data=dict(datetime=dates, count=count)
+    )
+    time_plot = figure(x_axis_type='datetime', plot_height=400)
+    time_plot.line('datetime', 'count', source=time_source)
+    hover = HoverTool()
+    hover.tooltips = [
+        ("Date", "@datetime"), 
+        ("Count", "@count")
+    ]
+    time_plot.add_tools(hover)
+    time_script, time_div = components(time_plot)
 
     context = {
         "script": script, 
         "div": div, "location_name": 
         location_name, 
-        "locations": locations
+        "locations": locations,
+        "time_series_script": time_script,
+        "time_series_div": time_div
     }
     return render(request, 'reports/bike-locations.html', context)

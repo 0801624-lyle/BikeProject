@@ -9,13 +9,13 @@
 <div class="container">
     <div class="row">
         <div class="mt-4 col-md-6 col-12">
-            <h4 class="text-primary">Current counts</h4>
+            <h4 class="text-primary">Bikes By Location (current moment)</h4>
             <hr/>
             {{ div|safe }}
         </div>
 
         <div class="mt-4 col-md-6 col-12">
-            <h4 class="text-primary">Location Time Series</h4>
+            <h4 class="text-primary">Historical station counts</h4>
             <hr/>
             <div class="justify-content-between d-flex">
                 <p class="font-weight-bold">{{ location_name }}</p>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            {{ div2|safe }}
+            {{ time_series_div|safe }}
         </div>
     </div>
 </div>
@@ -40,7 +40,7 @@
 
 {% block js %}
     {{ script|safe }}
-
+    {{ time_series_script|safe }}
 <script>
 
 </script>

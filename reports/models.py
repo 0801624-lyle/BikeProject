@@ -7,3 +7,6 @@ class LocationBikeCount(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     count = models.IntegerField()
     datetime = models.DateTimeField()
+
+    class Meta:
+        ordering = ('datetime',)
