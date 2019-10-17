@@ -41,3 +41,4 @@ class MembershipType:
         (PENSIONER, "Pensioner"),
         (STAFF, "Staff")
     )
+    
