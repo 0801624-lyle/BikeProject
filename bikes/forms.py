@@ -12,6 +12,7 @@ class RegistrationForm(forms.ModelForm):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput())
     password_confirm = forms.CharField(widget=forms.PasswordInput(), label="Confirm password")
+    # membership 
 
     class Meta:
         model = User
