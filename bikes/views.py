@@ -14,7 +14,11 @@ from .serializers import LocationSerializer
 
 # Create your views here.
 def index(request):
-    return render(request, 'bikes/index.html', {})
+    locations = Location.objects.all()
+    context = {
+        "locations": locations
+    }
+    return render(request, 'bikes/index.html', context)
 
 def view_map(request):
     locations = Location.objects.all()
