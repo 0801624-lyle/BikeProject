@@ -15,6 +15,7 @@ urlpatterns = [
     path('addfunds/', views.addfunds, name='addfunds'),
     path('login/', auth_views.LoginView.as_view(template_name="bikes/login.html"), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name="logout"),
+<<<<<<< HEAD
     path('register/', views.RegistrationView.as_view(), name='register'),
 
     # ajax views
@@ -22,4 +23,11 @@ urlpatterns = [
     path('register/ajax/check_email/', views.validate_email, name='ajax_check_email'),
     
     path('api/list/locations', views.LocationList.as_view(), name='location_list')
+=======
+    path('register', views.RegistrationView.as_view(), name='register'),
+
+    path('<int:choice>/register/', views.get_membershipType, name='membership type'),
+
+    path('',views.trip_duration,name='details'),
+>>>>>>> be42bab9add3e16ae59971bfc5011dfaff3fbf93
 ]
