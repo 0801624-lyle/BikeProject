@@ -9,16 +9,9 @@ from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
 from .forms import RegistrationForm
-<<<<<<< HEAD
 from .models import Location
 from .serializers import LocationSerializer
 
-=======
-from .models import BikeHires
-from django.utils import timezone
-from django.http import Http404
- 
->>>>>>> be42bab9add3e16ae59971bfc5011dfaff3fbf93
 # Create your views here.
 def index(request):
     return render(request, 'bikes/index.html', {})
@@ -79,7 +72,6 @@ class RegistrationView(SuccessMessageMixin, CreateView):
         login(self.request, user)
         return valid
 
-<<<<<<< HEAD
 
 # Ajax views
 def validate_username(request):
@@ -109,27 +101,3 @@ def validate_email(request):
 class LocationList(ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
-=======
-# return the user's membership type.
-def get_membershipType(request,choice):
-    stander='stander'
-    student='student'
-    pensioner='pensioner'
-    staff='staff'
-    if choice == 1:
-        return stander
-    elif choice == 2:
-        return student
-    elif choice == 3:
-        return pensioner 
-    elif choice == 4:
-        return staff 
-    else:
-        raise Http404('invalid choice')
-        
-# calculate journey duration. 
-def  trip_duration(request):
-     now = timezone.now()
-     duration= now - BikeHires.date_hired
-     return render('bikes/journey_details.html', duration)
->>>>>>> be42bab9add3e16ae59971bfc5011dfaff3fbf93
