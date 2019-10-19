@@ -25,7 +25,7 @@
                             <!--I used the variables I needed as id and value for the options in the dropdown menu. -->
                             <!-- I was not sure how to find those values inside a javascript function.-->
                             {% for location in locations %}
-                                <option id={{location.bikes_set.id}} value={{location.bikes_set.count}}>{{location.station_name}}</option>
+                                <option id={{location.bikes_set.first.id}} value={{location.bikes_set.count}}>{{location.station_name}}</option>
                             {% endfor %}
                         </select>
                     </p>
