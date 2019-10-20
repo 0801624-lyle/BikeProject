@@ -11,6 +11,9 @@ class Bikes(models.Model):
     location = models.ForeignKey("Location", on_delete=models.SET_NULL, blank=True, null=True)
     last_hired = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        ordering = ('last_hired',)
+
 class UserProfile(models.Model):
     """ Extends the native Django `User` model via a 1-1 relationship (see the `user` field below)
         The user_type field is given pre-defined choices from the choices.py file (imported at top).
