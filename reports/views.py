@@ -11,6 +11,8 @@ from bokeh.palettes import Category20c, Spectral6
 from bikes.models import Bikes, Location, BikeHires
 from reports.models import LocationBikeCount
 
+def reports_index(request):
+    return render(request, 'reports/index.html', {})
 
 def bike_locations(request):
     loc = request.GET.get('loc', None)
