@@ -103,6 +103,7 @@ class Command(BaseCommand):
         
         for h in hires:
             bike = random.choice(bikes)
+            bike.last_hired = h.date_hired
             start_station = bike.location
             end_station = random.choice(locations)
             if end_station.pk == start_station.pk:

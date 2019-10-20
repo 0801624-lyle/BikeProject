@@ -6,16 +6,87 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-12 col-md-6">
+<div class="container">
 
-            </div>
-            <div class="col-12 col-md-6">
-                <div id="map" class="my-2 col-12"></div>
-            </div>
+    <div class="d-flex align-items mt-2">
+        <img src="{% static 'images/bike-location-icon.png' %}" class="big-icon" style="color: rgb(78, 148, 86);" />
+        <h3 class="mb-4 mt-3 font-weight-bold d-inline" style="color: rgb(78, 148, 86);">
+            {{ location.station_name }}
+        </h3>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <table class="table">
+            <thead>
+                <tr>
+                    <th>Bike ID</th>
+                    <th class="text-center">Bike Status</th>
+                    <th class="text-center">Last Hired</th>
+            </thead>
+            <tbody>
+                {% for bike in bikes %}
+                    <tr>
+                        <td>
+                            <i class="zmdi zmdi-bike mr-2"></i>{{ bike.id }}</td>
+                        <td class="text-center">{{ bike.get_status_display }}</td>
+                        <td class="text-center">
+                            <small>
+                                {% if bike.last_hired %}
+                                    {{ bike.last_hired|date:"d-m-Y, h:i" }}
+                                {% else %}
+                                    No previous hires
+                                {% endif %}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success table-btn font-weight-bold mr-2" id="hire-btn">
+                                Hire
+                            </button>
+                            <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"/>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+
+        <!-- Pagination -->
+        <div class="pagination mt-4">
+            <ul class="pagination">
+                {% if bikes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bikes.previous_page_number }}">
+                            {{ bikes.previous_page_number }}
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ bikes.number }}">
+                        {{ bikes.number }}
+                    </a>
+                </li>
+
+                {% if bikes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bikes.next_page_number }}">
+                            {{ bikes.next_page_number }}
+                        </a>
+                    </li>
+                {% endif %}
+
+                <span class="current ml-3">
+                    Page {{ bikes.number }} of {{ bikes.paginator.num_pages }}.
+                </span>
+            </ul>
+        </div>
+
+        </div>
+        <div class="col-12 col-md-6">
+            <div id="map" class="my-2 col-12"></div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block js %}

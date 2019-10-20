@@ -9,6 +9,7 @@ from .choices import UserType, BikeStatus, MembershipType
 class Bikes(models.Model):
     status = models.IntegerField(choices=BikeStatus.CHOICES)
     location = models.ForeignKey("Location", on_delete=models.SET_NULL, blank=True, null=True)
+    last_hired = models.DateTimeField(null=True, blank=True)
 
 class UserProfile(models.Model):
     """ Extends the native Django `User` model via a 1-1 relationship (see the `user` field below)

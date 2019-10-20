@@ -27,7 +27,7 @@ def view_map(request):
     locations = Location.objects.all()
     locations_api = reverse('bikes:location_list')
 
-    paginator = Paginator(locations, 5)
+    paginator = Paginator(locations, 6)
 
     page = request.GET.get('page', 1)
     locations = paginator.get_page(page)
@@ -47,6 +47,10 @@ def location_detail(request, pk):
 
     bikes = location.bikes_set.all()
     num_bikes = bikes.count()
+
+    paginator = Paginator(bikes, 10)
+    page = request.GET.get('page', 1)
+    bikes = paginator.get_page(page)
 
     context = {
         "location": location,
