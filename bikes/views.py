@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -79,6 +80,7 @@ def addfunds(request):
     userprofile = request.user.userprofile
     userprofile.balance = F('balance') + added_balance
     userprofile.save()
+    messages.info(request, f"£{added_balance} was added to your balance.")
     return redirect(reverse("bikes:profile"))
 
 
@@ -138,9 +140,11 @@ def profile_pic_add(request, pk):
     # Check if the provided form is valid.
     if profile_form.is_valid():
         profile_form.save(commit=True)
+        messages.info(request, "Profile picture updated!")
         return redirect(reverse("bikes:profile"))
     else:
-        return HttpResponse("none") 
+        messages.error(request, "Profile picture update failed. \nPlease ensure you select a valid image file")
+        return redirect(reverse("bikes:profile"))
 
 
 class LocationList(ListAPIView):

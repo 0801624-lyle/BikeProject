@@ -13,3 +13,11 @@
     max-height: 100%;
     cursor: pointer;
 }
+
+.alert {
+	position: fixed;
+	right: 25px;
+    bottom: 25px;
+    width: 300px;
+    max-height:110px;
+}
