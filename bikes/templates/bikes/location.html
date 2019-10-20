@@ -23,6 +23,7 @@
                     <th>Bike ID</th>
                     <th class="text-center">Bike Status</th>
                     <th class="text-center">Last Hired</th>
+                    <th>Actions</th>
             </thead>
             <tbody>
                 {% for bike in bikes %}
@@ -40,10 +41,22 @@
                             </small>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-success table-btn font-weight-bold mr-2" id="hire-btn">
+                            <button class="btn btn-sm btn-success table-btn font-weight-bold mr-2" 
+                                id="hire-btn"
+                                {% if not user.is_authenticated %}
+                                disabled
+                                data-toggle="tooltip" title="You must be logged in to hire a bike"
+                                style="cursor: not-allowed;"
+                                {% endif %}>
                                 Hire
                             </button>
-                            <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"/>
+                            <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"
+                                id="repair-btn"
+                                {% if not user.is_authenticated %}
+                                disabled
+                                data-toggle="tooltip" title="You must be logged in to report a bike for repair"
+                                style="cursor: not-allowed;"
+                                {% endif %}/>
                         </td>
                     </tr>
                 {% endfor %}

@@ -1,6 +1,7 @@
 import math
 from datetime import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -21,12 +22,13 @@ def is_manager(user):
 
     return user.userprofile.user_type == UserType.MANAGER
 
-
+@login_required
 def reports_index(request):
     if not is_manager(request.user):
         return redirect(reverse('bikes:index'))
     return render(request, 'reports/index.html', {})
 
+@login_required
 def bike_locations(request):
     if not is_manager(request.user):
         return redirect(reverse('bikes:index'))
