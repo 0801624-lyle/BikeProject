@@ -105,3 +105,6 @@ venv.bak/
 
 # notebooks
 *.ipynb
+
+# editor
+.vscode
