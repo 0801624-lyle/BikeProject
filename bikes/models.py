@@ -25,6 +25,7 @@ class UserProfile(models.Model):
     balance = models.FloatField(default=0)
     charges = models.FloatField(default=0)
     discounts = models.ManyToManyField("Discounts", through='UserDiscounts')
+    profile_pic = models.ImageField(upload_to='profile/profile_images', blank=True)
 
 class Location(models.Model):
     """ Table that stores all the locations where bikes are available, along with lat/lon coordinates """

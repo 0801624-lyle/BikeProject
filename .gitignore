@@ -108,3 +108,6 @@ venv.bak/
 
 # editor
 .vscode
+
+# user uploaded content
+media

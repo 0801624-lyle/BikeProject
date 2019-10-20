@@ -1,5 +1,5 @@
 import os
-
+from django.urls import reverse_lazy
 from django.utils import timezone
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.humanize',
     'django.contrib.staticfiles',
     'bikes',
     'reports',
@@ -122,8 +123,8 @@ MEDIA_ROOT = MEDIA_DIR
 
 # Login settings
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = reverse_lazy('bikes:index')
+LOGOUT_REDIRECT_URL = reverse_lazy('bikes:index')
 
 # CHARGE SETTINGS
 BASIC_CHARGES = {

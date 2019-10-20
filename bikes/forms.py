@@ -3,6 +3,8 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
+from .models import UserProfile
+
 # For registering new users
 class RegistrationForm(forms.ModelForm):
 
@@ -47,3 +49,9 @@ class RegistrationForm(forms.ModelForm):
             self.cleaned_data['password']
         )
         return user
+
+class UserProfileForm(forms.ModelForm):
+    """ Hidden form allowing profile picture uploads """
+    class Meta:
+        model = UserProfile
+        fields = ('profile_pic',)

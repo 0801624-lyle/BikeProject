@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
@@ -8,8 +9,8 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
-from .forms import RegistrationForm
-from .models import Location
+from .forms import RegistrationForm, UserProfileForm
+from .models import Location, UserProfile, BikeHires, Bikes
 from .serializers import LocationSerializer
 
 # Create your views here.
@@ -53,18 +54,28 @@ def location_detail(request, pk):
 
     return render(request, 'bikes/location.html', context)
 
+@login_required
 def profile(request):
-    return render(request, 'bikes/profile.html') 
+    user = request.user
+    current_user = UserProfile.objects.get(user=user)
+    num_bike_rides = BikeHires.objects.filter(user=current_user).count()
+    photo_form = UserProfileForm({'picture': current_user.profile_pic})
+    context = {
+        "num_bike_rides": num_bike_rides,
+        "profile_form": photo_form
+    }
+    
+    return render(request, 'bikes/profile.html', context) 
 
 def addfunds(request):
     return render(request, 'bikes/addfunds.html')
 
 
-
 class RegistrationView(SuccessMessageMixin, CreateView):
+    """ This view handles user registration """
+
     template_name = "bikes/register.html"
     form_class = RegistrationForm
-    success_url = '/'
     success_message = "Registration successful. Welcome, %(username)s"
 
     # Override to auto-login user when they register
@@ -76,6 +87,11 @@ class RegistrationView(SuccessMessageMixin, CreateView):
         login(self.request, user)
         return valid
 
+    def get_success_url(self, **kwargs):
+        """ This method defines the 'success url' - this is where a user is 
+            redirected to after they have successfully registered. #
+        """
+        return reverse('bikes:profile')
 
 # Ajax views
 def validate_username(request):
@@ -100,6 +116,18 @@ def validate_email(request):
     return JsonResponse({
         "email_exists": email_exists
     })
+
+@login_required
+def profile_pic_add(request, pk):
+    """ This function adds a profile picture to the User's who uploaded it.
+        The 'pk' argument is passed in from the URL, and used to fetch the user profile """
+    userprofile = UserProfile.objects.get(id=pk)
+    profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+
+    # Check if the provided form is valid.
+    if profile_form.is_valid():
+        profile_form.save(commit=True)
+        return redirect(reverse("bikes:profile"))
 
 
 class LocationList(ListAPIView):

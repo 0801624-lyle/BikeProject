@@ -7,3 +7,9 @@
     max-width:50px;
     max-height:50px;
 }
+
+#user-profile-pic {
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+}
