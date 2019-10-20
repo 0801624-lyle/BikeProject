@@ -50,7 +50,7 @@
                         </tr>
                         <tr>
                             <td class="font-weight-bold">
-                             <i class="zmdi zmdi-money mr-2"></i>Charges</td>
+                            <i class="zmdi zmdi-alert-octagon mr-2"></i>Charges</td>
                             <td>£{{user.userprofile.charges|floatformat:2|intcomma}}</td>
                         </tr>
                         <tr>
@@ -61,7 +61,9 @@
                     </tbody>
                 </table>
 
-            <a type="button" class="btn btn-primary mt-3" href="/addfunds/">Add funds</a>
+            <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#add-funds-modal">
+                Add funds
+            </button>
 
             </div>
             <div class="col-12 col-sm-4 user-profile">
@@ -81,10 +83,13 @@
         </div>
     </div>
 
+    {% include 'includes/add_funds_modal.html' %}
 {% endblock %}
 
 {% block js %}
 <script>
+    
+    var start_balance = parseFloat("{{ user.userprofile.balance|safe }}")
     
     /* Function that changes the user profile. */
     $(".user-profile").on("click", "#user-profile-pic", function() {
@@ -94,5 +99,21 @@
         $("#profile-image-form").submit();
     });
 
+    /* update balance info text */
+    $("#add-balance-input").on("keyup", function() {
+        let input = parseFloat($(this).val()) // get the value of the input box
+        // if parseFloat is non-truthy or less than zero, restore to default
+        if (!input || input <= 0) {
+            $(this).val("")
+            $("#balance-text").text(start_balance)
+        } else {
+            let updated = start_balance + input
+            $("#balance-text").text(updated.toFixed(2))
+        }
+    });
+
+    $("#add-funds-btn").on("click", function() {
+        $("#add-funds-form").submit()
+    })
 </script>
 {% endblock %}

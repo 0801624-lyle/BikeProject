@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
+from django.db.models import F
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -67,8 +68,18 @@ def profile(request):
     
     return render(request, 'bikes/profile.html', context) 
 
+@login_required
 def addfunds(request):
-    return render(request, 'bikes/addfunds.html')
+    # must be a POST request
+    if request.method != "POST":
+        return redirect(reverse('bikes:profile'))
+    
+    added_balance = request.POST.get('balance', 0)
+    added_balance = '%.2f' % (float(added_balance))
+    userprofile = request.user.userprofile
+    userprofile.balance = F('balance') + added_balance
+    userprofile.save()
+    return redirect(reverse("bikes:profile"))
 
 
 class RegistrationView(SuccessMessageMixin, CreateView):
@@ -128,6 +139,8 @@ def profile_pic_add(request, pk):
     if profile_form.is_valid():
         profile_form.save(commit=True)
         return redirect(reverse("bikes:profile"))
+    else:
+        return HttpResponse("none") 
 
 
 class LocationList(ListAPIView):
