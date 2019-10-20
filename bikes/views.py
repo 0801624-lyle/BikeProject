@@ -89,7 +89,7 @@ class RegistrationView(SuccessMessageMixin, CreateView):
 
     template_name = "bikes/register.html"
     form_class = RegistrationForm
-    success_message = "Registration successful. Welcome, %(username)s"
+    success_message = "Registration successful. Welcome, %(username)s!"
 
     # Override to auto-login user when they register
     def form_valid(self, form):

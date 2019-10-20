@@ -1,20 +1,35 @@
 import math
 from datetime import datetime
+
 from django.db.models import Count, Q
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource
 from bokeh.palettes import Category20c, Spectral6
 
+from bikes.choices import UserType
 from bikes.models import Bikes, Location, BikeHires
 from reports.models import LocationBikeCount
 
+
+def is_manager(user):
+    """ This function is the 'test' for which a user must pass to view the reports pages.
+        The user must be of type UserType.MANAGER in order to view any of these pages. """
+
+    return user.userprofile.user_type == UserType.MANAGER
+
+
 def reports_index(request):
+    if not is_manager(request.user):
+        return redirect(reverse('bikes:index'))
     return render(request, 'reports/index.html', {})
 
 def bike_locations(request):
+    if not is_manager(request.user):
+        return redirect(reverse('bikes:index'))
     loc = request.GET.get('loc', None)
     if loc is None:
         location_name = Location.objects.first().station_name
