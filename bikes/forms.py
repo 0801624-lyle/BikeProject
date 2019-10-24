@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
-from .models import UserProfile
+from .models import UserProfile, Bikes
 
 # For registering new users
 class RegistrationForm(forms.ModelForm):
@@ -55,3 +55,6 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ('profile_pic',)
+
+class BikeHireForm(forms.Form):
+    bike_id = forms.IntegerField()

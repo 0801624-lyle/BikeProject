@@ -41,8 +41,14 @@
                             </small>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-success table-btn font-weight-bold mr-2" 
-                                id="hire-btn"
+                            <button class="btn btn-sm btn-success table-btn font-weight-bold mr-2 hire-btn"
+                                data-bikeid="{{bike.pk}}"
+                                data-toggle="modal"
+                                data-target="#hire-bike-modal"
+                            {% if user.userprofile.current_hire %}
+                                disabled
+                                data-toggle="tooltip" title="You already have a bike on hire!"
+                            {% endif %}
                                 {% if not user.is_authenticated %}
                                 disabled
                                 data-toggle="tooltip" title="You must be logged in to hire a bike"
@@ -51,7 +57,7 @@
                                 Hire
                             </button>
                             <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"
-                                id="repair-btn"
+                                data-bikeid="{{bike.pk}}" 
                                 {% if not user.is_authenticated %}
                                 disabled
                                 data-toggle="tooltip" title="You must be logged in to report a bike for repair"
@@ -100,10 +106,26 @@
         </div>
     </div>
 </div>
+
+{% include 'includes/hire_bike_modal.html' %}
+
+{% include 'includes/notification.html' %}
+
 {% endblock %}
 
 {% block js %}
 <script>
+
+
+$(".hire-btn").on("click", function(e) {
+    var bike_id = $.trim($(this).data('bikeid'))
+    $(".modal-bikeid").text(bike_id)
+    $("#id_bike_id").attr("value", parseInt(bike_id,10))
+});
+
+$("#confirm-hire-btn").on("click", function(e) {
+    $("#hire-bike-form").submit()
+});
 
 function initMap() {
     var lat = "{{ location.latitude|safe }}"
@@ -112,7 +134,6 @@ function initMap() {
     var numbikes = "{{ num_bikes|safe }}"
 
     var location = {lat: parseFloat(lat), lng: parseFloat(lon)};
-    console.log(location)
     
     var map = new google.maps.Map(
         document.getElementById('map'), {zoom: 13, center: location}

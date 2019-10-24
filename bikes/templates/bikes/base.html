@@ -28,6 +28,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'bikes:view-map' %}">Bike Locations</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'bikes:user-hires' %}">Hire History</a>
+                </li>
                 {% if can_view_manager %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'reports:reports_index' %}">Reports</a>

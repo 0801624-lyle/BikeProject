@@ -9,6 +9,8 @@ urlpatterns = [
     path('', views.index, name = 'index'),
     path('view-map/', views.view_map, name='view-map'),
     path('locations/<int:pk>/', views.location_detail, name='location_detail'),
+    path('hire/', views.hire_bike, name='hire-bike'),
+    path('user-hires/', views.user_hires, name='user-hires'),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),

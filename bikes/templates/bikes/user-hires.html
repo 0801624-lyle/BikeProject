@@ -1,0 +1,36 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    User Hires
+{% endblock %}
+
+{% block content %}
+    
+<div class="container">
+
+    <div id="current-hire" class="mt-3">
+        <h3 class="text-success">Current Hires</h3>
+        {% if current_hire %}
+            {{ current_hire }}
+        {% else %}
+            You have no bike currently out on hire
+        {% endif %}
+    </div>
+
+    <hr/>
+
+    <div class="previous-hires">
+        <h3 class="text-success">Previous Hires</h3>
+        {% if historical_hires %}
+            {{ historical_hires}}
+        {% else %}
+            You have no previous hires!
+        {% endif %}
+    </div>
+
+</div>
+
+{% include 'includes/notification.html' %}
+
+{% endblock %}

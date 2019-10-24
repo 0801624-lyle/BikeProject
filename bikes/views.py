@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
-from .forms import RegistrationForm, UserProfileForm
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm
 from .models import Location, UserProfile, BikeHires, Bikes
 from .serializers import LocationSerializer
 
@@ -52,10 +52,13 @@ def location_detail(request, pk):
     page = request.GET.get('page', 1)
     bikes = paginator.get_page(page)
 
+    hire_form = BikeHireForm()
+
     context = {
         "location": location,
         "bikes": bikes,
-        "num_bikes": num_bikes
+        "num_bikes": num_bikes,
+        "hire_form": hire_form,
     }
 
     return render(request, 'bikes/location.html', context)
@@ -75,6 +78,8 @@ def profile(request):
 
 @login_required
 def addfunds(request):
+    """ Adds funds to a user's balance """
+
     # must be a POST request
     if request.method != "POST":
         return redirect(reverse('bikes:profile'))
@@ -87,6 +92,39 @@ def addfunds(request):
     messages.info(request, f"£{added_balance} was added to your balance.")
     return redirect(reverse("bikes:profile"))
 
+@login_required
+def user_hires(request):
+    """ This view shows the user's current hires, as well as their historical hires """
+    user = request.user.userprofile
+    current_hire = user.current_hire
+    historical_hires = BikeHires.objects.filter(user=user)
+    context = {
+        "current_hire": current_hire,
+        "historical_hires": historical_hires
+    }
+    return render(request, 'bikes/user-hires.html', context)
+
+@login_required
+def hire_bike(request):
+    if request.method != "POST":
+        return redirect(reverse('bikes:view-map'))
+
+    form = BikeHireForm(request.POST or None)
+    user = request.user.userprofile
+    if form.is_valid():
+        bike_id = form.cleaned_data['bike_id'] 
+        bike = Bikes.objects.get(pk=bike_id)
+        
+        if user.current_hire is not None:
+            messages.error(request, "Please return your bike before attempting to hire a new one")
+            return redirect(reverse('bikes:user-hires'))
+        station = bike.location.station_name
+        
+        # call the hire() method to hire the bike [this is on Bikes model]
+        bike.hire(user)
+
+        messages.info(request, f"You have hired bike {bike_id} from station {station}")
+        return redirect(reverse('bikes:user-hires'))
 
 class RegistrationView(SuccessMessageMixin, CreateView):
     """ This view handles user registration """

@@ -9,8 +9,6 @@ class BikeSerializer(serializers.ModelSerializer):
         model = Bikes
         fields = ("id", "status", "location")
 
-    # def get_status(self, obj):
-    #     return obj.get_status_display()
 
 class LocationSerializer(serializers.ModelSerializer):
     bikes_set = BikeSerializer(many=True, read_only=True)

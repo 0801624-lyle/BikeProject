@@ -11,6 +11,24 @@ class Bikes(models.Model):
     location = models.ForeignKey("Location", on_delete=models.SET_NULL, blank=True, null=True)
     last_hired = models.DateTimeField(null=True, blank=True)
 
+    def hire(self, user):
+        """ This function sets the model attributes upon a user hiring the bike.
+            It also creates the BikeHires model associated with the hire, and sets the user's current hire
+        """
+        start_location = self.location
+        self.status = BikeStatus.ON_HIRE
+        self.location = None
+        self.last_hired = timezone.now()
+        self.save() # save model with new changes
+        
+        # create corresponding BikeHires object
+        bike_hire = BikeHires(bike=self, user=user, start_station=start_location, date_hired=self.last_hired)
+        bike_hire.save()
+
+        # set user's current hire
+        user.current_hire = bike_hire
+        user.save()
+
     class Meta:
         ordering = ('last_hired',)
 
@@ -30,6 +48,7 @@ class UserProfile(models.Model):
     charges = models.FloatField(default=0)
     discounts = models.ManyToManyField("Discounts", through='UserDiscounts')
     profile_pic = models.ImageField(upload_to='profile/profile_images', blank=True)
+    current_hire = models.OneToOneField("BikeHires", on_delete=models.SET_NULL, null=True, blank=True)
 
 class Location(models.Model):
     """ Table that stores all the locations where bikes are available, along with lat/lon coordinates """
