@@ -93,6 +93,22 @@ def addfunds(request):
     return redirect(reverse("bikes:profile"))
 
 @login_required
+def paycharges(request):
+    """ Pays user's charges with user's balance """
+
+    # does this have to be a post?
+    #      
+    userprofile = request.user.userprofile
+    if userprofile.balance >= userprofile.charges:
+        userprofile.balance = userprofile.balance - userprofile.charges
+        userprofile.charges = 0
+        userprofile.save()
+        messages.info(request, "Your charges have been paid")
+    else:
+        messages.info(request, "Your balance does not cover your charges. \nPlease add more funds.")
+    return redirect(reverse("bikes:profile"))
+
+@login_required
 def user_hires(request):
     """ This view shows the user's current hires, as well as their historical hires """
     user = request.user.userprofile
@@ -117,6 +133,9 @@ def hire_bike(request):
         
         if user.current_hire is not None:
             messages.error(request, "Please return your bike before attempting to hire a new one")
+            return redirect(reverse('bikes:user-hires'))
+        elif user.charges != 0:
+            messages.error(request, "You can not hire another bike before you pay your charges.")
             return redirect(reverse('bikes:user-hires'))
         station = bike.location.station_name
         

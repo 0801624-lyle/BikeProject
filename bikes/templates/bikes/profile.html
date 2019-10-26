@@ -69,6 +69,10 @@
                 Add funds
             </button>
 
+            <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#pay-charges-modal">
+                Pay charges
+            </button>
+
             </div>
             <div class="col-12 col-sm-4 user-profile">
                 {% if user.userprofile.profile_pic %}
@@ -88,6 +92,8 @@
     </div>
 
     {% include 'includes/add_funds_modal.html' %}
+
+    {% include 'includes/pay_charges_modal.html' %}
 
     {% include 'includes/notification.html' %}
 {% endblock %}

@@ -45,7 +45,7 @@ class UserProfile(models.Model):
     membership_type = models.IntegerField(choices=MembershipType.CHOICES, default=MembershipType.STANDARD) 
     user_type = models.IntegerField(choices=UserType.CHOICES, default=UserType.CUSTOMER)
     balance = models.FloatField(default=0)
-    charges = models.FloatField(default=0)
+    charges = models.FloatField(default=10)
     discounts = models.ManyToManyField("Discounts", through='UserDiscounts')
     profile_pic = models.ImageField(upload_to='profile/profile_images', blank=True)
     current_hire = models.OneToOneField("BikeHires", on_delete=models.SET_NULL, null=True, blank=True)
