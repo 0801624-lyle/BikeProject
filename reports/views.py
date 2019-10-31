@@ -52,8 +52,8 @@ def bike_locations(request):
 
     plot.xgrid.grid_line_color = "black"
     plot.xaxis.major_label_orientation = math.pi/6
-    plot.min_border_left = 100
-    plot.min_border_right = 100
+    plot.min_border_left = 80
+    plot.min_border_right = 80
     plot.y_range.start = 0
     plot.y_range.end   = max(bike_counts) + 2
 

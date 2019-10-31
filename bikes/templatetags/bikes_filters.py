@@ -1,4 +1,5 @@
 from django import template
+from bikes.cost_calculator import CostCalculator
 
 register = template.Library()
 
@@ -12,3 +13,7 @@ def add_class(field, css):
 @register.filter(name="add_id")
 def add_id(field, name):
     return field.as_widget(attrs={"id": name})
+
+@register.filter(name="get_cost")
+def get_cost(hire):
+    return CostCalculator(hire).calculate_cost()

@@ -113,7 +113,7 @@ def user_hires(request):
     """ This view shows the user's current hires, as well as their historical hires """
     user = request.user.userprofile
     current_hire = user.current_hire
-    historical_hires = BikeHires.objects.filter(user=user)
+    historical_hires = BikeHires.objects.filter(user=user, end_station__isnull=False).order_by('-date_hired')
     context = {
         "current_hire": current_hire,
         "historical_hires": historical_hires
