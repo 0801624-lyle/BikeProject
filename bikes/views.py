@@ -11,9 +11,11 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm
-from .models import Location, UserProfile, BikeHires, Bikes
+from .cost_calculator import CostCalculator
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm
+from .models import Location, UserProfile, BikeHires, Bikes, Discounts
 from .serializers import LocationSerializer
+from . import utils
 
 # Create your views here.
 def index(request):
@@ -87,7 +89,7 @@ def addfunds(request):
     added_balance = request.POST.get('balance', 0)
     added_balance = '%.2f' % (float(added_balance))
     userprofile = request.user.userprofile
-    userprofile.balance = F('balance') + added_balance
+    userprofile.add_balance(float(added_balance))
     userprofile.save()
     messages.info(request, f"£{added_balance} was added to your balance.")
     return redirect(reverse("bikes:profile"))
@@ -114,10 +116,15 @@ def user_hires(request):
     user = request.user.userprofile
     current_hire = user.current_hire
     historical_hires = BikeHires.objects.filter(user=user, end_station__isnull=False).order_by('-date_hired')
+    
     context = {
         "current_hire": current_hire,
         "historical_hires": historical_hires
     }
+
+    if current_hire is not None:
+        return_form = ReturnBikeForm(initial={"hire_id": current_hire.pk})
+        context["form"] = return_form
     return render(request, 'bikes/user-hires.html', context)
 
 @login_required
@@ -145,6 +152,18 @@ def hire_bike(request):
         messages.info(request, f"You have hired bike {bike_id} from station {station}")
         return redirect(reverse('bikes:user-hires'))
 
+@login_required
+def return_bike(request):
+    user = request.user.userprofile
+    form = ReturnBikeForm(request.POST or None)
+    if form.is_valid():
+        hire = BikeHires.objects.get(pk=form.cleaned_data['hire_id'])
+        hire = utils.return_bike(hire, form.cleaned_data['location'], form.cleaned_data['discount'])
+
+        messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges}")
+        return redirect(reverse('bikes:user-hires'))
+    return HttpResponse("hello")
+    
 class RegistrationView(SuccessMessageMixin, CreateView):
     """ This view handles user registration """
 

@@ -6,6 +6,7 @@ import random, string, sys
 import datetime
 
 from bikes.choices import BikeStatus, UserType, MembershipType
+from bikes.cost_calculator import CostCalculator
 from bikes.models import *
 from reports.models import *
 
@@ -48,7 +49,7 @@ class Command(BaseCommand):
         for user in users:
             db_user = get_user_model().objects.create_user(**user)
             # set these users as managers
-            UserProfile.objects.filter(user=db_user).update(user_type=UserType.MANAGER)
+            UserProfile.objects.filter(user=db_user).update(user_type=UserType.MANAGER, balance=100)
         
         # create operators and customers user
         for i in range(3):
@@ -58,8 +59,8 @@ class Command(BaseCommand):
             operator = User.objects.create_user(
                 username=f"operator{i}", password="password", email=f"operator{i}@gmail.com"
             )
-            UserProfile.objects.filter(user=customer).update(user_type=UserType.CUSTOMER)
-            UserProfile.objects.filter(user=operator).update(user_type=UserType.OPERATOR)
+            UserProfile.objects.filter(user=customer).update(user_type=UserType.CUSTOMER, balance=100)
+            UserProfile.objects.filter(user=operator).update(user_type=UserType.OPERATOR, balance=100)
     
     def create_bikes(self):
         locations = Location.objects.all()
@@ -96,6 +97,9 @@ class Command(BaseCommand):
             # Add discount to ~30% of the hires
             if random.random() < 0.3:
                 hire.discount_applied = discount
+            hire.charges = CostCalculator(hire).calculate_cost()
+            user.add_charges(hire.charges)
+            user.save()
             hires.append(hire)
         
         # sort the hires in date order

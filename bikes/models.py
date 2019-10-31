@@ -50,6 +50,33 @@ class UserProfile(models.Model):
     profile_pic = models.ImageField(upload_to='profile/profile_images', blank=True)
     current_hire = models.OneToOneField("BikeHires", on_delete=models.SET_NULL, null=True, blank=True)
 
+    def add_balance(self, balance):
+        """ Adds balance to user's account. Removes charges if applicable """
+        if self.charges > 0:
+            if balance <= self.charges:
+                # if balance is less than existing charges, then just deduct the balance from charges
+                self.charges -= balance
+            else:
+                diff = balance - self.charges
+                self.charges = 0
+                self.balance = diff
+        else:
+            self.balance += balance
+
+    def add_charges(self, charges):
+        """ Adds charges to user's account. Removes from balance if applicable """
+        if self.balance > 0:
+            if self.balance >= charges:
+                # if balance exceeds charges, then just deduct the charges from balance
+                self.balance -= charges
+            else:
+                diff = charges - self.balance # get difference between charges and current balance
+                self.balance = 0 # set balance to 0
+                self.charges = diff # set charges to the difference 
+        else:
+            # if balance is zero, simply add charges to existing charges
+            self.charges += charges
+
 class Location(models.Model):
     """ Table that stores all the locations where bikes are available, along with lat/lon coordinates """
 
@@ -60,6 +87,9 @@ class Location(models.Model):
 
     class Meta:
         ordering = ("station_name",)
+
+    def __str__(self):
+        return self.station_name
 
 class BikeHires(models.Model):
     """ A table that tracks all historical bike hires.

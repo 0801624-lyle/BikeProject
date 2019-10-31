@@ -15,7 +15,7 @@
         <h3 class="text-success mb-4">Current Hire</h3>
 
         {% if current_hire %}
-            <div class="card col-4">
+            <div class="card col-12 col-md-6">
                 <div class="card-body">
                 <h5 class="card-title text-primary"><i class="zmdi zmdi-bike mr-2"></i>Current Hire</h5>
                     <p>You currently have <b>Bike {{current_hire.bike.id}}</b> out on hire!</p>
@@ -31,7 +31,8 @@
                         <div class="cost">
                             Current Cost: <b>£{{ current_hire|get_cost }}</b> <br/>
                         </div>
-                        <button class="btn btn-primary btn-sm">Return Bike</button>
+                        <button class="btn btn-primary btn-sm"
+                            data-toggle="modal" data-target="#return-bike-modal">Return Bike</button>
                 </div>
             </div>
         {% else %}
@@ -66,8 +67,8 @@
                 <td>{{ hire.end_station.station_name }}</td>
                 <td>{{ hire.date_hired }}</td>
                 <td>{{ hire.date_returned }}</td>
-                <td>{{ hire.get_duration }}</td>
-                <td>{{ hire.charges }}</td>
+                <td>{{ hire.get_duration|duration }}</td>
+                <td>£{{ hire.charges|floatformat:"2" }}</td>
             </tr>
             {% endfor %}
             
@@ -80,6 +81,20 @@
 
 </div>
 
+{% if current_hire %}
+    {% include 'includes/return-bike-modal.html' %}
+{% endif %}
+
 {% include 'includes/notification.html' %}
 
+{% endblock %}
+
+{% block js %}
+<script>
+
+$("#return-bike-btn").on("click", function() {
+    $("#return-bike-form").submit()
+})
+
+</script>
 {% endblock %}

@@ -11,6 +11,7 @@ urlpatterns = [
     path('locations/<int:pk>/', views.location_detail, name='location_detail'),
     path('hire/', views.hire_bike, name='hire-bike'),
     path('user-hires/', views.user_hires, name='user-hires'),
+    path('return-bike/', views.return_bike, name='return-bike'),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),
