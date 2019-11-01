@@ -90,7 +90,7 @@ class BikeRepairs(models.Model):
     """ A table to track all historical bike repairs """
 
     bike = models.ForeignKey(Bikes, on_delete=models.CASCADE)
-    date_malfunctioned = models.DateTimeField()
+    date_malfunctioned = models.DateTimeField(auto_now_add=True)
     date_repaired = models.DateTimeField(null=True) # allow this to be null in case the Bike isn't yet fixed
     repair_cost = models.FloatField(null=True) # how much repair cost
 

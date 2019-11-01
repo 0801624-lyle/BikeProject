@@ -6,8 +6,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
 
+<div class="container">
+    
     <div class="d-flex align-items mt-2">
         <img src="{% static 'images/bike-location-icon.png' %}" class="big-icon" style="color: rgb(78, 148, 86);" />
         <h3 class="mb-4 mt-3 font-weight-bold d-inline" style="color: rgb(78, 148, 86);">
@@ -56,6 +57,7 @@
                                 {% endif %}>
                                 Hire
                             </button>
+                            <button type ="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#bike-report-modal">
                             <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"
                                 data-bikeid="{{bike.pk}}" 
                                 {% if not user.is_authenticated %}
@@ -63,12 +65,15 @@
                                 data-toggle="tooltip" title="You must be logged in to report a bike for repair"
                                 style="cursor: not-allowed;"
                                 {% endif %}/>
+                                Report
+                            </button>
+                            
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
             </table>
-
+        
         <!-- Pagination -->
         <div class="pagination mt-4">
             <ul class="pagination">
@@ -108,8 +113,12 @@
 </div>
 
 {% include 'includes/hire_bike_modal.html' %}
+{% include 'bikes/repairbike.html' %}
+
+
 
 {% include 'includes/notification.html' %}
+
 
 {% endblock %}
 
@@ -126,6 +135,10 @@ $(".hire-btn").on("click", function(e) {
 $("#confirm-hire-btn").on("click", function(e) {
     $("#hire-bike-form").submit()
 });
+
+
+
+
 
 function initMap() {
     var lat = "{{ location.latitude|safe }}"

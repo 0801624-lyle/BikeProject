@@ -1,6 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
+
 from . import views
 
 app_name = 'bikes'
@@ -11,6 +12,7 @@ urlpatterns = [
     path('locations/<int:pk>/', views.location_detail, name='location_detail'),
     path('hire/', views.hire_bike, name='hire-bike'),
     path('user-hires/', views.user_hires, name='user-hires'),
+    
 
     # login and registration views
     path('profile/', views.profile, name='profile'),
@@ -20,9 +22,13 @@ urlpatterns = [
     path('register/', views.RegistrationView.as_view(), name='register'),
     path('profile/<int:pk>/add-photo/', views.profile_pic_add, name='profile_pic_add'),
 
+    
+
     # ajax views
     path('register/ajax/check_username/', views.validate_username, name='ajax_check_username'),
     path('register/ajax/check_email/', views.validate_email, name='ajax_check_email'),
     
-    path('api/list/locations', views.LocationList.as_view(), name='location_list')
+    path('api/list/locations', views.LocationList.as_view(), name='location_list'),
+
+    path('repairbike/<int:pk>/', views.bike_report, name='bike_report'),
 ]

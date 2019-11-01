@@ -11,9 +11,10 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm
-from .models import Location, UserProfile, BikeHires, Bikes
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, BikeRepairsForm
+from .models import Location, UserProfile, BikeHires, Bikes, BikeRepairs
 from .serializers import LocationSerializer
+
 
 # Create your views here.
 def index(request):
@@ -192,3 +193,10 @@ def profile_pic_add(request, pk):
 class LocationList(ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+def bike_report(request):
+   form= BikeRepairsForm(request.POST) 
+   if form.is_valid():
+       form.save()
+       bike_id = form.cleaned_data['bike']
+       return redirect('bikes: locations')
