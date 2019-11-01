@@ -12,6 +12,7 @@ from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
+from .choices import MembershipType
 from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts
 from .serializers import LocationSerializer

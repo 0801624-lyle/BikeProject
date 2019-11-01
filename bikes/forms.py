@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
+from .choices import MembershipType
 from .models import UserProfile, Bikes,BikeRepairs, Location
 
 # For registering new users
@@ -14,11 +15,11 @@ class RegistrationForm(forms.ModelForm):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput())
     password_confirm = forms.CharField(widget=forms.PasswordInput(), label="Confirm password")
-    # membership 
+    membership_type = forms.ChoiceField(choices=MembershipType.CHOICES) 
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password',)
     
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -48,6 +49,8 @@ class RegistrationForm(forms.ModelForm):
             self.cleaned_data['email'],
             self.cleaned_data['password']
         )
+        user.userprofile.membership_type = self.cleaned_data['membership_type']
+        user.userprofile.save()
         return user
 
 class UserProfileForm(forms.ModelForm):

@@ -48,6 +48,12 @@
                             <td>{{user.email}}</td>
                         </tr>
                         <tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-email mr-2"></i>Membership Type</td>
+                            <td>{{ user.userprofile.get_membership_type_display }}</td>
+                        </tr>
+                        <tr>
                             <td class="font-weight-bold">
                                 <i class="zmdi zmdi-money mr-2"></i>Balance</td>
                             <td>£{{user.userprofile.balance|floatformat:2|intcomma}}</td>
