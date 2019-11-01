@@ -50,7 +50,7 @@
                         <tr>
                         <tr>
                             <td class="font-weight-bold">
-                                <i class="zmdi zmdi-email mr-2"></i>Membership Type</td>
+                                <i class="zmdi zmdi-accounts mr-2"></i>Membership Type</td>
                             <td>{{ user.userprofile.get_membership_type_display }}</td>
                         </tr>
                         <tr>
@@ -65,8 +65,16 @@
                         </tr>
                         <tr>
                             <td class="font-weight-bold">
-                             <i class="zmdi zmdi-plus-1 mr-2"></i>Total journeys</td>
-                            <td>{{ num_bike_rides }}</td>
+                                <i class="zmdi zmdi-plus-1 mr-2"></i>Total journeys
+                            </td>
+                            <td>
+                                {{ num_bike_rides }}
+                                {% if user.userprofile.current_hire %}
+                                <a href="{% url 'bikes:user-hires' %}">
+                                    <button class="btn btn-sm ml-3 btn-success">View current hire</button>
+                                </a>
+                                {% endif %}
+                            </td>
                         </tr>
                     </tbody>
                 </table>

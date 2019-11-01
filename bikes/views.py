@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, ExpressionWrapper, fields
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -119,7 +119,20 @@ def user_hires(request):
     """ This view shows the user's current hires, as well as their historical hires """
     user = request.user.userprofile
     current_hire = user.current_hire
-    historical_hires = BikeHires.objects.filter(user=user, end_station__isnull=False).order_by('-date_hired')
+
+    ordering = request.GET.get('order')
+    if ordering is None:
+        ordering = '-date_hired'
+
+    if "duration" not in ordering:
+        historical_hires = BikeHires.objects.filter(user=user, end_station__isnull=False).order_by(ordering)
+    else:
+        # because duration is an 'implied' field, we need to annotate each model with their duration before ordering
+        # duration = date_returned - date_hired. The below code annotates each model with a 'duration' field
+        duration = ExpressionWrapper(F('date_returned') - F('date_hired'), output_field=fields.DurationField())
+        historical_hires = BikeHires.objects.filter(user=user, end_station__isnull=False) \
+            .annotate(duration=duration)
+        historical_hires = historical_hires.order_by(ordering)
     
     context = {
         "current_hire": current_hire,
@@ -248,3 +261,9 @@ def bike_report(request):
         # and create the BikeRepairs object
         
         return redirect(reverse('bikes:view-map'))
+
+################## 
+# OPERATOR VIEWS
+
+def operator_index(request):
+    return HttpResponse("operator lol")

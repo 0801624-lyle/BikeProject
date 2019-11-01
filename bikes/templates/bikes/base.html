@@ -31,6 +31,14 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'bikes:user-hires' %}">Hire History</a>
                 </li>
+
+                
+                {% if can_view_operator %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'bikes:operator_index' %}">Operator</a>
+                    </li>
+                {% endif %}
+
                 {% if can_view_manager %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'reports:reports_index' %}">Reports</a>
