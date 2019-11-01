@@ -235,8 +235,17 @@ class LocationList(ListAPIView):
     serializer_class = LocationSerializer
 
 def bike_report(request):
-   form= BikeRepairsForm(request.POST) 
-   if form.is_valid():
-       form.save()
-       bike_id = form.cleaned_data['bike']
-       return redirect('bikes: locations')
+    """ view for handling reporting a Bike as needing repair """
+    
+    form = BikeRepairsForm(request.POST) 
+    if form.is_valid():
+        bike_id = form.cleaned_data['bike']
+        
+        # get the bike object from the database
+        bike = Bikes.objects.get(pk=bike_id)
+        print(bike, bike_id)
+
+        # now set bikes status to BEING_REPAIRED
+        # and create the BikeRepairs object
+        
+        return redirect(reverse('bikes:locations'))

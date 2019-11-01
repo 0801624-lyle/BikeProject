@@ -57,9 +57,9 @@
                                 {% endif %}>
                                 Hire
                             </button>
-                            <button type ="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#bike-report-modal">
+                            <button type ="button" class="btn btn-outline-secondary" id="bike-repair-btn"
+                             data-toggle="modal" data-target="#bike-report-modal" data-bikeid="{{bike.pk}}">
                             <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"
-                                data-bikeid="{{bike.pk}}" 
                                 {% if not user.is_authenticated %}
                                 disabled
                                 data-toggle="tooltip" title="You must be logged in to report a bike for repair"
@@ -136,8 +136,16 @@ $("#confirm-hire-btn").on("click", function(e) {
     $("#hire-bike-form").submit()
 });
 
+$("#confirm-repair-btn").on("click", function(e) {
+    $("#repair-bike-form").submit()
+});
 
-$("#confirm-hire-btn")
+
+$("#bike-repair-btn").on("click", function() {
+    var bike_id = $.trim($(this).data('bikeid'))
+    $(".modal-bikeid").text(bike_id)
+    $("#id_bike").attr("value", parseInt(bike_id, 10))
+})
 
 
 function initMap() {

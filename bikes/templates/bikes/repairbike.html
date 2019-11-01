@@ -8,14 +8,14 @@
           </button>
         </div>
         <div class="modal-body">
-            <p>Are you sure you wish to report this bike as defective?</p>
+            <p>Are you sure you wish to report bike <span class="modal-bikeid"></span> as defective?</p>
 
-            <form method="POST" action="{% url 'bikes:bike_repair' %}">
+            <form method="POST" action="{% url 'bikes:bike_repair' %}" id="repair-bike-form">
                 {{ repair_form.bike.as_hidden }}
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="confirm-hire-btn">Confirm Hire</button>
+            <button type="button" class="btn btn-primary" id="confirm-repair-btn">Send For Repair</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         </div>
     </div>
