@@ -18,6 +18,13 @@ class UserType:
         (MANAGER, "Manager")
     )
 
+    @classmethod
+    def get_choice(cls, key):
+        for choice in cls.CHOICES:
+            if choice[0] == key:
+                return choice[1]
+        return None
+
 class BikeStatus:
     AVAILABLE = 1
     ON_HIRE = 2
@@ -41,4 +48,10 @@ class MembershipType:
         (PENSIONER, "Pensioner"),
         (STAFF, "Staff")
     )
-    
+
+    @classmethod
+    def get_choice(cls, key):
+        for choice in cls.CHOICES:
+            if choice[0] == key:
+                return choice[1]
+        return None

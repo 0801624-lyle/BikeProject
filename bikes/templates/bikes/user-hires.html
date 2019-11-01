@@ -49,7 +49,7 @@
             <!-- dropdown -->
             <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                Filters<span class="caret"></span></button>
+                Ordering<span class="caret"></span></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" 
                         href="{% url 'bikes:user-hires' %}?order=-date_hired">Date (most recent)</a>
@@ -60,9 +60,9 @@
                     <a class="dropdown-item" 
                         href="{% url 'bikes:user-hires' %}?order=charges">Cost (smallest)</a>
                     <a class="dropdown-item" 
-                        href="{% url 'bikes:user-hires' %}?order=-duration">Duration (largest)</a>
+                        href="{% url 'bikes:user-hires' %}?order=-duration">Duration (longest)</a>
                     <a class="dropdown-item" 
-                        href="{% url 'bikes:user-hires' %}?order=duration">Duration (smallest)</a>
+                        href="{% url 'bikes:user-hires' %}?order=duration">Duration (shortest)</a>
                 </div>
             </div>
             <!-- / dropdown -->

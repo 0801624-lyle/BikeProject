@@ -178,8 +178,7 @@ def return_bike(request):
         hire = utils.return_bike(hire, form.cleaned_data['location'], form.cleaned_data['discount'])
 
         messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges}")
-        return redirect(reverse('bikes:user-hires'))
-    return HttpResponse("hello")
+    return redirect(reverse('bikes:user-hires'))
     
 class RegistrationView(SuccessMessageMixin, CreateView):
     """ This view handles user registration """

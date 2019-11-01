@@ -2,17 +2,19 @@ import math
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource
-from bokeh.palettes import Category20c, Spectral6
+from bokeh.palettes import *
 
-from bikes.choices import UserType
-from bikes.models import Bikes, Location, BikeHires
+from bikes.choices import UserType, MembershipType
+from bikes.models import Bikes, Location, BikeHires, UserProfile
 from reports.models import LocationBikeCount
 
 
@@ -32,6 +34,7 @@ def reports_index(request):
 def bike_locations(request):
     if not is_manager(request.user):
         return redirect(reverse('bikes:index'))
+
     loc = request.GET.get('loc', None)
     if loc is None:
         location_name = Location.objects.first().station_name
@@ -67,7 +70,7 @@ def bike_locations(request):
         data=dict(datetime=dates, count=count)
     )
     time_plot = figure(x_axis_type='datetime', plot_height=400)
-    time_plot.line('datetime', 'count', source=time_source)
+    time_plot.step('datetime', 'count', source=time_source)
     hover = HoverTool()
     hover.tooltips = [
         ("Date", "@datetime"), 
@@ -85,3 +88,42 @@ def bike_locations(request):
         "time_series_div": time_div
     }
     return render(request, 'reports/bike-locations.html', context)
+
+
+# User Activity report
+@login_required
+def user_report(request):
+    if not is_manager(request.user):
+        return redirect(reverse('bikes:index'))
+    
+    users = UserProfile.objects.all()
+
+    # Count the number of users for each membership type (standard, student, pensioner, staff)
+    membershiptype_counts = users.values('membership_type').annotate(membership_count=Count('membership_type'))
+    memberships = [MembershipType.get_choice(m['membership_type']) for m in membershiptype_counts]
+    member_counts = [m['membership_count'] for m in membershiptype_counts]
+    plot = figure(x_range=memberships, plot_height=300, plot_width=300, title="Users by membership type", toolbar_location="below")
+    source = ColumnDataSource(data=dict(memberships=memberships, member_counts=member_counts, color=Spectral6))
+
+    plot.vbar(x='memberships', top='member_counts', width=.8, color='color', source=source)
+
+    script, div = components(plot)
+
+    # Count the number of users for each user type (customer, operator, manager)
+    usertypes_counts = users.values('user_type').annotate(user_count=Count('user_type'))
+    user_types = [UserType.get_choice(u['user_type']) for u in usertypes_counts]
+    user_counts = [u['user_count'] for u in usertypes_counts]
+    usertype_plot = figure(x_range=user_types, plot_height=300, plot_width=300, title="Users by type", toolbar_location="below")
+    source2 = ColumnDataSource(data=dict(user_types=user_types, user_counts=user_counts, color=Spectral6))
+
+    usertype_plot.vbar(x='user_types', top='user_counts', width=.8, color='color', source=source2)
+
+    script2, div2 = components(usertype_plot)
+    context = {
+        "script": script,
+        "div": div,
+        "script2": script2,
+        "div2": div2
+    }
+
+    return render(request, "reports/user-report.html", context)
