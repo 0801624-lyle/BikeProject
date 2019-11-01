@@ -11,9 +11,11 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm, BikeRepairsForm
-from .models import Location, UserProfile, BikeHires, Bikes, BikeRepairs
+from .cost_calculator import CostCalculator
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm
+from .models import Location, UserProfile, BikeHires, Bikes, Discounts
 from .serializers import LocationSerializer
+from . import utils
 
 
 # Create your views here.
@@ -54,12 +56,14 @@ def location_detail(request, pk):
     bikes = paginator.get_page(page)
 
     hire_form = BikeHireForm()
+    repair_form = BikeRepairsForm()
 
     context = {
         "location": location,
         "bikes": bikes,
         "num_bikes": num_bikes,
         "hire_form": hire_form,
+        "repair_form": repair_form
     }
 
     return render(request, 'bikes/location.html', context)
@@ -88,9 +92,25 @@ def addfunds(request):
     added_balance = request.POST.get('balance', 0)
     added_balance = '%.2f' % (float(added_balance))
     userprofile = request.user.userprofile
-    userprofile.balance = F('balance') + added_balance
+    userprofile.add_balance(float(added_balance))
     userprofile.save()
     messages.info(request, f"£{added_balance} was added to your balance.")
+    return redirect(reverse("bikes:profile"))
+
+@login_required
+def paycharges(request):
+    """ Pays user's charges with user's balance """
+
+    # does this have to be a post?
+    #      
+    userprofile = request.user.userprofile
+    if userprofile.balance >= userprofile.charges:
+        userprofile.balance = userprofile.balance - userprofile.charges
+        userprofile.charges = 0
+        userprofile.save()
+        messages.info(request, "Your charges have been paid")
+    else:
+        messages.info(request, "Your balance does not cover your charges. \nPlease add more funds.")
     return redirect(reverse("bikes:profile"))
 
 @login_required
@@ -98,11 +118,16 @@ def user_hires(request):
     """ This view shows the user's current hires, as well as their historical hires """
     user = request.user.userprofile
     current_hire = user.current_hire
-    historical_hires = BikeHires.objects.filter(user=user)
+    historical_hires = BikeHires.objects.filter(user=user, end_station__isnull=False).order_by('-date_hired')
+    
     context = {
         "current_hire": current_hire,
         "historical_hires": historical_hires
     }
+
+    if current_hire is not None:
+        return_form = ReturnBikeForm(initial={"hire_id": current_hire.pk})
+        context["form"] = return_form
     return render(request, 'bikes/user-hires.html', context)
 
 @login_required
@@ -119,6 +144,9 @@ def hire_bike(request):
         if user.current_hire is not None:
             messages.error(request, "Please return your bike before attempting to hire a new one")
             return redirect(reverse('bikes:user-hires'))
+        elif user.charges != 0:
+            messages.error(request, "You can not hire another bike before you pay your charges.")
+            return redirect(reverse('bikes:user-hires'))
         station = bike.location.station_name
         
         # call the hire() method to hire the bike [this is on Bikes model]
@@ -127,6 +155,18 @@ def hire_bike(request):
         messages.info(request, f"You have hired bike {bike_id} from station {station}")
         return redirect(reverse('bikes:user-hires'))
 
+@login_required
+def return_bike(request):
+    user = request.user.userprofile
+    form = ReturnBikeForm(request.POST or None)
+    if form.is_valid():
+        hire = BikeHires.objects.get(pk=form.cleaned_data['hire_id'])
+        hire = utils.return_bike(hire, form.cleaned_data['location'], form.cleaned_data['discount'])
+
+        messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges}")
+        return redirect(reverse('bikes:user-hires'))
+    return HttpResponse("hello")
+    
 class RegistrationView(SuccessMessageMixin, CreateView):
     """ This view handles user registration """
 

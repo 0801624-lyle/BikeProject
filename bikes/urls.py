@@ -12,11 +12,12 @@ urlpatterns = [
     path('locations/<int:pk>/', views.location_detail, name='location_detail'),
     path('hire/', views.hire_bike, name='hire-bike'),
     path('user-hires/', views.user_hires, name='user-hires'),
-    
+    path('return-bike/', views.return_bike, name='return-bike'),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),
     path('addfunds/', views.addfunds, name='addfunds'),
+    path('paycharges/', views.paycharges, name='paycharges'),
     path('login/', auth_views.LoginView.as_view(template_name="bikes/login.html"), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name="logout"),
     path('register/', views.RegistrationView.as_view(), name='register'),
@@ -30,5 +31,5 @@ urlpatterns = [
     
     path('api/list/locations', views.LocationList.as_view(), name='location_list'),
 
-    path('repairbike/<int:pk>/', views.bike_report, name='bike_report'),
+    path('repairbike/', views.bike_report, name='bike_repair'),
 ]
