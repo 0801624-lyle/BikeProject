@@ -50,15 +50,29 @@
                                 disabled
                                 data-toggle="tooltip" title="You already have a bike on hire!"
                             {% endif %}
-                                {% if not user.is_authenticated %}
+                            {% if bike.get_status_display == 'Being repaired' %}
+                                disabled
+                                data-toggle="tooltip" title="Cannot hire: bike currently being repaired"
+                            {% endif%}
+                            {% if not user.is_authenticated %}
                                 disabled
                                 data-toggle="tooltip" title="You must be logged in to hire a bike"
                                 style="cursor: not-allowed;"
                                 {% endif %}>
                                 Hire
                             </button>
-                            <button type ="button" class="btn btn-outline-secondary" id="bike-repair-btn"
-                             data-toggle="modal" data-target="#bike-report-modal" data-bikeid="{{bike.pk}}">
+
+                        <!-- Report bike for repair button -->
+                        <button type ="button" class="btn btn-outline-secondary" id="bike-repair-btn"
+                             data-toggle="modal" 
+                             data-target="#bike-report-modal" 
+                             data-bikeid="{{bike.pk}}"
+                             {% if bike.get_status_display == 'Being repaired' %}
+                                disabled
+                                data-toggle="tooltip" title="This bike has already been reported for repair"
+                            {% endif %}>
+                            
+                            
                             <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"
                                 {% if not user.is_authenticated %}
                                 disabled
@@ -66,7 +80,7 @@
                                 style="cursor: not-allowed;"
                                 {% endif %}/>
                                 Report
-                            </button>
+                        </button>
                             
                         </td>
                     </tr>

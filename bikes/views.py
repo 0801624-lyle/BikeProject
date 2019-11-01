@@ -12,9 +12,9 @@ from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
-from .choices import MembershipType
+from .choices import MembershipType, BikeStatus
 from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm
-from .models import Location, UserProfile, BikeHires, Bikes, Discounts
+from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
 from . import utils
 
@@ -257,8 +257,13 @@ def bike_report(request):
         bike = form.cleaned_data['bike']
 
         # now set bikes status to BEING_REPAIRED
+        bike.status = BikeStatus.BEING_REPAIRED
+        bike.save()
+
         # and create the BikeRepairs object
-        
+        BikeRepairs.objects.create(bike=bike)
+
+        messages.info(request, f"Bike {bike.pk} has been reported for repair, and taken out of circulation")
         return redirect(reverse('bikes:view-map'))
 
 ################## 

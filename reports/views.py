@@ -70,7 +70,7 @@ def bike_locations(request):
         data=dict(datetime=dates, count=count)
     )
     time_plot = figure(x_axis_type='datetime', plot_height=400)
-    time_plot.step('datetime', 'count', source=time_source)
+    time_plot.step('datetime', 'count', line_width=2, source=time_source)
     hover = HoverTool()
     hover.tooltips = [
         ("Date", "@datetime"), 
