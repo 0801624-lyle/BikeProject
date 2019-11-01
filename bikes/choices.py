@@ -26,7 +26,7 @@ class BikeStatus:
     CHOICES = (
         (AVAILABLE, "Available"),
         (ON_HIRE, "Out on hire"),
-        (BEING_REPAIRED, "Needs repaired")
+        (BEING_REPAIRED, "Being repaired")
     )
 
 class MembershipType:

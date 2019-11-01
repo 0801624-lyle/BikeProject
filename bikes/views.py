@@ -239,13 +239,11 @@ def bike_report(request):
     
     form = BikeRepairsForm(request.POST) 
     if form.is_valid():
-        bike_id = form.cleaned_data['bike']
-        
-        # get the bike object from the database
-        bike = Bikes.objects.get(pk=bike_id)
-        print(bike, bike_id)
+
+        # this is the Bike object (i.e. the model)
+        bike = form.cleaned_data['bike']
 
         # now set bikes status to BEING_REPAIRED
         # and create the BikeRepairs object
         
-        return redirect(reverse('bikes:locations'))
+        return redirect(reverse('bikes:view-map'))
