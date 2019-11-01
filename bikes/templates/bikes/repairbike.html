@@ -11,6 +11,7 @@
             <p>Are you sure you wish to report bike <span class="modal-bikeid"></span> as defective?</p>
 
             <form method="POST" action="{% url 'bikes:bike_repair' %}" id="repair-bike-form">
+              {% csrf_token %}
                 {{ repair_form.bike.as_hidden }}
             </form>
         </div>
