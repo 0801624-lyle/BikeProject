@@ -193,6 +193,16 @@ def return_bike(request):
 
         messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges}")
     return redirect(reverse('bikes:user-hires'))
+
+@login_required
+def move_bike(request):
+    form = MoveBikeForm(request.POST or None)
+    if form.is_valid():
+        bike = Bikes.objects.get(pk=form.cleaned_data['bike_id'])
+        bike = utils.move_bike(bike, form.cleaned_data['new_location'])
+
+        messages.info(request, f"Bike {bike.pk} has been moved to {bike.location}.")
+    return redirect(reverse('bikes:operator-index'))
     
 class RegistrationView(SuccessMessageMixin, CreateView):
     """ This view handles user registration """

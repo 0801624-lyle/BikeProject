@@ -13,9 +13,10 @@ urlpatterns = [
     path('hire/', views.hire_bike, name='hire-bike'),
     path('user-hires/', views.user_hires, name='user-hires'),
     path('return-bike/', views.return_bike, name='return-bike'),
+    path('move-bike/', views.move_bike, name='move-bike'),
 
     # operator pages
-    path('operator/index/', views.operator_index, name='operator_index'),
+    path('operator/index/', views.operator_index, name='operator-index'),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),

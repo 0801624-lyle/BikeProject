@@ -1,5 +1,8 @@
 {% extends 'bikes/base.html' %}
 {% load static %}
+{% load bikes_filters %}
+
+
 
 {% block title_block %}
     Operator page
@@ -19,8 +22,10 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="zmdi zmdi-swap-vertical-circle text-success"></i>
-                        Move bikes</a>
+                        <a data-toggle="modal" href="#move-bike-modal">
+                            <i class="zmdi zmdi-swap-vertical-circle text-success"></i>
+                            Move bikes
+                        </a>
                     </h5>
                     <p class="card-text text-success">
                         Move bike from one station to another.
@@ -34,7 +39,7 @@
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="zmdi zmdi-wrench text-success"></i>
-                        Repair a bike</a>
+                        Repair a bike
                     </h5>
                     <p class="card-text text-success">
                         Repair a bike that has been reported as defective.
@@ -46,7 +51,7 @@
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="zmdi zmdi-gps-dot text-success"></i>
-                        Track bikes</a>
+                        Track bikes
                     </h5>
                     <p class="card-text text-success">
                         Find out where a certain bike is situated.
@@ -58,4 +63,16 @@
         
 
     </div>
+
+
+    {% include 'includes/move_bike_modal.html' %}
+
+    <script>
+
+        $("#move-bike-btn").on("click", function() {
+            $("#move-bike-form").submit()
+        })
+            
+    </script>
+
 {% endblock %}
