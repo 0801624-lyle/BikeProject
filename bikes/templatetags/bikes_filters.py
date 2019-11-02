@@ -16,7 +16,7 @@ def add_id(field, name):
 
 @register.filter(name="get_cost")
 def get_cost(hire):
-    return CostCalculator(hire).calculate_cost()
+    return CostCalculator(hire).calculate_cost()[0]
 
 @register.filter
 def duration(td):

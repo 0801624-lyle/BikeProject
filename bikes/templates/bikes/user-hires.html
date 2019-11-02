@@ -29,7 +29,7 @@
                     <hr/>
                     <div class="d-flex justify-content-between">
                         <div class="cost">
-                            Current Cost: <b>£{{ current_hire|get_cost }}</b> <br/>
+                            Current Cost: <b>£{{ current_hire|get_cost|floatformat:2 }}</b> <br/>
                         </div>
                         <button class="btn btn-primary btn-sm"
                             data-toggle="modal" data-target="#return-bike-modal">Return Bike</button>
