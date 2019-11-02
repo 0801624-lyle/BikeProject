@@ -14,7 +14,11 @@ def return_bike(hire, end_station, user_discount_code):
     if model.exists():
         model = model.get()
         hire.discount_applied = model
+        discount_model = UserDiscounts(user=hire.user, discounts=model, date_used=timezone.now())
     charges, discount = CostCalculator(hire).calculate_cost()
+    if hire.discount_applied is not None:
+        discount_model.amount_saved = discount
+        discount_model.save()
     hire.charges = charges
     hire.save()
 

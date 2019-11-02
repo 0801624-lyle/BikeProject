@@ -29,7 +29,7 @@ class CostCalculator():
         duration = self.hire.get_duration()
 
         if duration <= max_time:
-            return basic_cost, saved_with_discount
+            return self.apply_discount(basic_cost)
         
         minutes_exceeded = duration - max_time
         additional_charges = self.calculate_penalty(minutes_exceeded)
@@ -37,11 +37,20 @@ class CostCalculator():
         total = basic_cost + additional_charges
         
         # apply the discount if applicable
+        return self.apply_discount(total)
+        # discount = self.hire.discount_applied
+        # if discount is not None and timezone.now().date() <= discount.date_to:
+        #     saved_with_discount = total - (total * discount.discount_amount)
+        #     total *= discount.discount_amount
+            
+        # return total, saved_with_discount
+
+    def apply_discount(self, total):
         discount = self.hire.discount_applied
+        saved_with_discount = 0
         if discount is not None and timezone.now().date() <= discount.date_to:
             saved_with_discount = total - (total * discount.discount_amount)
             total *= discount.discount_amount
-            
         return total, saved_with_discount
 
     def calculate_penalty(self, minutes_exceeded: datetime.datetime):

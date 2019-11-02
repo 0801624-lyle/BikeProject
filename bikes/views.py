@@ -190,8 +190,8 @@ def return_bike(request):
     if form.is_valid():
         hire = BikeHires.objects.get(pk=form.cleaned_data['hire_id'])
         hire = utils.return_bike(hire, form.cleaned_data['location'], form.cleaned_data['discount'])
-
-        messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges}")
+        print(form.cleaned_data['discount'])
+        messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges:.2f}")
     return redirect(reverse('bikes:user-hires'))
 
 @login_required
