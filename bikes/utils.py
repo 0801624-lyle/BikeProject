@@ -14,7 +14,7 @@ def return_bike(hire, end_station, user_discount_code):
     if model.exists():
         model = model.get()
         hire.discount_applied = model
-    charges = CostCalculator(hire).calculate_cost()
+    charges, discount = CostCalculator(hire).calculate_cost()
     hire.charges = charges
     hire.save()
 
