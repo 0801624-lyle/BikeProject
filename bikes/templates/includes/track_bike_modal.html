@@ -1,0 +1,35 @@
+<div id="track-bike-modal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Track a bike</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Enter the ID of a bike:</p>
+                      <div class="input-group-prepend">
+                          <span class="input-group-text" id="basic-addon1"></span>
+                      </div>
+                      <input type="number" class="form-control" name="bike-id" id="track-bike-input">
+                  </div>
+                  <p id = "location-info">
+                  </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="track-bike-btn">Track bike</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function showLocation() {
+                var bike = document.getElementById("track-bike-input");
+                var bikeID = bike.options[selected.selectedIndex].text;
+                var locinfo = document.getElementById("location-info);
+                locinfo.innerHTML = ("Bike number " + bikeID + " is located at " + {{Bikes.objects.get(pk = bikeID).location}} + ".");
+            }
+    </script>
