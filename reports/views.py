@@ -99,7 +99,7 @@ def user_report(request):
         return redirect(reverse('bikes:index'))
     
     users = UserProfile.objects.all()
-    hires = BikeHires.objects.all()
+    hires = BikeHires.objects.all().select_related('bike', 'user', 'start_station', 'end_station')
 
     # Count the number of users for each membership type (standard, student, pensioner, staff)
     membershiptype_counts = users.values('membership_type').annotate(membership_count=Count('membership_type'))
@@ -138,6 +138,10 @@ def user_report(request):
     # total distance cycles
     total_distance_cycled = sum([ride_distance(hire).km for hire in hires])
 
+    # number of rides per user type
+    hires_per_usertype = hires.values('user__membership_type').order_by('user__membership_type') \
+        .annotate(num_hires=Count('id'))
+
     ###
 
     script2, div2 = components(usertype_plot)
@@ -158,10 +162,10 @@ def financial_report(request):
         return redirect(reverse('bikes:index'))
 
     # All hires
-    hires = BikeHires.objects.all()
+    hires = BikeHires.objects.all().select_related('bike', 'user', 'start_station', 'end_station')
 
     # total income from rides
-    total_income = BikeHires.objects.aggregate(user_paid=Sum('charges'))
+    total_income = hires.aggregate(income=Sum('charges'))
     
     # average per ride
     avg_per_ride = BikeHires.objects.aggregate(avg=Avg('charges'))
@@ -190,5 +194,17 @@ def financial_report(request):
         k: sum(v['charges'] for v in list(v)) \
             for k,v in groupby(charges_by_month, key=lambda date: date['date_hired'].month)
     }
+
+    # charges per user type
+    charges_per_usertype = hires.values('user__membership_type').order_by('user__membership_type') \
+        .annotate(amt=Sum('charges'))
+
+    # users with outstanding charges
+    users_in_debt = UserProfile.objects.filter(charges__gt=0)
+    # total amount still to be collected in charges
+    total_charges_for_collection = users_in_debt.aggregate(charges=Sum('charges'))
+
+    # amount liquid
+    liquid_money = total_income['income'] - total_charges_for_collection['charges']
 
     return HttpResponse("testing")
