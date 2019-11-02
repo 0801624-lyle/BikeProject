@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
     # This method is executed when the management command is run.
     def handle(self, *args, **kwargs):
+        print("**STARTING**\n")
         if Location.objects.count() == 0:
             self.create_locations()
         if User.objects.count() == 0:
@@ -24,8 +25,12 @@ class Command(BaseCommand):
             self.create_discount()
         if BikeHires.objects.count() == 0:
             self.create_bike_hire_history()
+        if BikeRepairs.objects.count() == 0:
+            self.create_repairs()
+        print("\nSCRIPT COMPLETED")
 
     def create_locations(self):
+        print("Creating locations...")
         locations = [
             {"station_name": "University of Glasgow", "latitude": 55.8715, "longitude": -4.2887},
             {"station_name": "Strathclyde University", "latitude": 55.862785, "longitude": -4.242353},
@@ -38,6 +43,7 @@ class Command(BaseCommand):
             Location.objects.create(**location)
 
     def create_users(self):
+        print("Creating users...")
         users = [
             {"username": "lyle", "password": "password", "email": "lyle@gmail.com"},
             {"username": "CJ", "password": "password", "email": "cj@gmail.com"},
@@ -61,8 +67,13 @@ class Command(BaseCommand):
             )
             UserProfile.objects.filter(user=customer).update(user_type=UserType.CUSTOMER, balance=100)
             UserProfile.objects.filter(user=operator).update(user_type=UserType.OPERATOR, balance=100)
+
+        for u in UserProfile.objects.all():
+            u.membership_type = random.choice(MembershipType.CHOICES)[0]
+            u.save()
     
     def create_bikes(self):
+        print("Creating bikes...")
         locations = Location.objects.all()
         for _ in range(85):
             location = random.choice(locations)
@@ -75,6 +86,7 @@ class Command(BaseCommand):
             location.save()
 
     def create_discount(self):
+        print("Creating discounts...")
         date_from = timezone.now()
         date_to   = timezone.now() + timezone.timedelta(days=10)
         Discounts.objects.create(
@@ -82,6 +94,7 @@ class Command(BaseCommand):
         )
 
     def create_bike_hire_history(self):
+        print("Creating historical data...")
         users = UserProfile.objects.all()
         locations = Location.objects.all()
         bikes = Bikes.objects.all()
@@ -97,7 +110,14 @@ class Command(BaseCommand):
             # Add discount to ~30% of the hires
             if random.random() < 0.3:
                 hire.discount_applied = discount
-            hire.charges = CostCalculator(hire).calculate_cost()
+                user_discount = UserDiscounts(user=user, discounts=discount, date_used=end)
+
+            # calculate the total cost of the journey, and the amount saved via discount
+            total, amount_saved = CostCalculator(hire).calculate_cost()
+            if hire.discount_applied is not None:
+                user_discount.amount_saved = amount_saved
+                user_discount.save()
+            hire.charges = total
             user.add_charges(hire.charges)
             user.save()
             hires.append(hire)
@@ -120,7 +140,18 @@ class Command(BaseCommand):
             bike.location = h.end_station
             bike.save()
 
+    def create_repairs(self):
+        print("Creating repairs...")
+        bikes = Bikes.objects.all()
+        for _ in range(25):
+            bike = random.choice(bikes)
+            dt = self._get_random_datetime()
+            dt_repaired = dt + timezone.timedelta(days=random.randint(1,10))
+            cost = random.randint(5, 50)
+            BikeRepairs.objects.create(bike=bike, date_malfunctioned=dt, date_repaired=dt_repaired, repair_cost=cost)
+
     def _get_random_duration(self):
+        """ Generates random duration for a ride. A weighted randomization (shorter rides are more likely) """
         time_ranges = [*list(range(1,36)), *list(range(36,50)), *list(range(50,80)), *list(range(80,500))]
         weights = [*[.70 for _ in range(1,36)], 
                     *[.20 for _ in range(36,50)], 

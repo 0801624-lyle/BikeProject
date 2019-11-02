@@ -131,7 +131,7 @@ BASIC_CHARGES = {
     "standard": 2,
     "student": 1,
     "pensioner": .50,
-    "staff": .10
+    "staff": .50
 }
 
 # Standard ride must be under 30 minutes [STANDARD_CHARGE_TIME_MAX]

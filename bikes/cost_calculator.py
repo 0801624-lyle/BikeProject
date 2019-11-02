@@ -25,10 +25,11 @@ class CostCalculator():
         membership = user.membership_type
         basic_cost = self._get_basic_cost(membership)
         max_time = settings.STANDARD_CHARGE_TIME_MAX
+        saved_with_discount = 0 # default saved via a discount
         duration = self.hire.get_duration()
 
         if duration <= max_time:
-            return basic_cost
+            return basic_cost, saved_with_discount
         
         minutes_exceeded = duration - max_time
         additional_charges = self.calculate_penalty(minutes_exceeded)
@@ -38,10 +39,10 @@ class CostCalculator():
         # apply the discount if applicable
         discount = self.hire.discount_applied
         if discount is not None and timezone.now().date() <= discount.date_to:
+            saved_with_discount = total - (total * discount.discount_amount)
             total *= discount.discount_amount
             
-        return total
-
+        return total, saved_with_discount
 
     def calculate_penalty(self, minutes_exceeded: datetime.datetime):
         """ Calculates additional charges if the duration of the hire exceeded 30 minutes.
