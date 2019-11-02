@@ -1,5 +1,8 @@
+from collections import namedtuple
+
 from django.db.models import F
 from django.utils import timezone
+import geopy.distance
 
 from .cost_calculator import CostCalculator
 from .models import *
@@ -26,3 +29,18 @@ def return_bike(hire, end_station, user_discount_code):
     bike.save()
 
     return hire
+
+def ride_distance(hire):
+    """ Calculates a ride's distance between the start and end stations
+        Uses geopy.distance.distance [an implementation of geodesic distance]
+        returns namedtuple of distance attributes: kilometres, miles and feet for the distance 
+    """
+    start, end = hire.start_station, hire.end_station
+    Distance = namedtuple('Distance', 'km miles feet')
+    if end is not None:
+        # extract latitude and longitudes for the start and end stations
+        start = start.latitude, start.longitude
+        end   = end.latitude, end.longitude
+        dist = geopy.distance.distance(start, end) # calculate geodesic distance
+        return Distance(km=dist.km, miles=dist.miles, feet=dist.feet)
+    return 0 # if end is None

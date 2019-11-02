@@ -78,6 +78,7 @@
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Duration</th>
+                <th>Distance</th>
                 <th>Cost</th>
             </tr>
         </thead>
@@ -91,6 +92,7 @@
                 <td>{{ hire.date_hired }}</td>
                 <td>{{ hire.date_returned }}</td>
                 <td>{{ hire.get_duration|duration }}</td>
+                <td>{{ hire.distance.km|floatformat:2 }} km</td>
                 <td>£{{ hire.charges|floatformat:"2" }}</td>
             </tr>
             {% endfor %}
