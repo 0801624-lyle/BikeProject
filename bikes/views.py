@@ -270,4 +270,4 @@ def bike_report(request):
 # OPERATOR VIEWS
 
 def operator_index(request):
-    return HttpResponse("operator lol")
+    return render(request, 'bikes/operator_index.html')

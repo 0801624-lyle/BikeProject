@@ -1,0 +1,61 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    Operator page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="mt-4">
+            <img src="{% static 'images/operator_icon.png' %}" class="icon mr-2" />
+            <h3 class="text-success d-inline">RainyBikes operator controls</h3>
+        </div>
+        <hr/>
+        
+        
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="zmdi zmdi-swap-vertical-circle text-success"></i>
+                        Move bikes</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        Move bike from one station to another.
+                    </p>
+                </div>
+            </div>
+        
+
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="zmdi zmdi-wrench text-success"></i>
+                        Repair a bike</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        Repair a bike that has been reported as defective.
+                    </p>
+                </div>
+            </div>
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="zmdi zmdi-gps-dot text-success"></i>
+                        Track bikes</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        Find out where a certain bike is situated.
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+        
+
+    </div>
+{% endblock %}
