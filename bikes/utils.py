@@ -26,3 +26,11 @@ def return_bike(hire, end_station, user_discount_code):
     bike.save()
 
     return hire
+
+def move_bike(bike, new_station):
+
+    # set bike location
+    bike.location = new_station
+    bike.save()
+
+    return bike
