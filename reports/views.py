@@ -1,9 +1,10 @@
 import math
 from datetime import datetime
+from itertools import groupby
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum, Avg, Max
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -15,6 +16,7 @@ from bokeh.palettes import *
 
 from bikes.choices import UserType, MembershipType
 from bikes.models import Bikes, Location, BikeHires, UserProfile
+from bikes.utils import ride_distance
 from reports.models import LocationBikeCount
 
 
@@ -97,6 +99,7 @@ def user_report(request):
         return redirect(reverse('bikes:index'))
     
     users = UserProfile.objects.all()
+    hires = BikeHires.objects.all().select_related('bike', 'user', 'start_station', 'end_station')
 
     # Count the number of users for each membership type (standard, student, pensioner, staff)
     membershiptype_counts = users.values('membership_type').annotate(membership_count=Count('membership_type'))
@@ -118,6 +121,29 @@ def user_report(request):
 
     usertype_plot.vbar(x='user_types', top='user_counts', width=.8, color='color', source=source2)
 
+    # users in order of number of hires
+    user_hirecount = hires.values('user').order_by('user').annotate(num_hires=Count('user_id')) \
+        .order_by('num_hires')
+
+    # user charge totals
+    user_charge_totals = hires.values('user').order_by('user').annotate(total=Sum('charges')) \
+        .order_by('total')
+
+    # hires_by_month 
+    hires_by_month = hires.values('date_hired').order_by('date_hired')
+    num_hires_per_month = {
+        k: len(list(v)) for k,v in groupby(hires_by_month, key=lambda date: date['date_hired'].month)
+    }
+
+    # total distance cycles
+    total_distance_cycled = sum([ride_distance(hire).km for hire in hires])
+
+    # number of rides per user type
+    hires_per_usertype = hires.values('user__membership_type').order_by('user__membership_type') \
+        .annotate(num_hires=Count('id'))
+
+    ###
+
     script2, div2 = components(usertype_plot)
     context = {
         "script": script,
@@ -127,3 +153,58 @@ def user_report(request):
     }
 
     return render(request, "reports/user-report.html", context)
+
+@login_required
+def financial_report(request):
+    """ Generates the application's Financial Report """
+
+    if not is_manager(request.user):
+        return redirect(reverse('bikes:index'))
+
+    # All hires
+    hires = BikeHires.objects.all().select_related('bike', 'user', 'start_station', 'end_station')
+
+    # total income from rides
+    total_income = hires.aggregate(income=Sum('charges'))
+    
+    # average per ride
+    avg_per_ride = BikeHires.objects.aggregate(avg=Avg('charges'))
+
+    # 5 maximum charges for individual rides
+    maximum_charges = BikeHires.objects.annotate(max_charge=Max('charges')).order_by('-max_charge')[:5]
+
+    # get hire charges ordered from smallest to largest charge
+    hires_by_charge = hires.order_by('charges').values('charges')
+    
+    # group the hires into discrete bins - i.e., all hires between £1 and £2 get grouped together
+    # all hires between £x and £x+1 are grouped, and the number of hires for each bin is calculated
+    # The below code uses a dictionary comprehension and the itertools.groupby function to do this
+    # the key function for the grouping is the math.floor function, applied to an individual bike hire's charge field
+    hires_by_charge_quantized = {
+        k: len(list(v)) for k, v in groupby(hires_by_charge, key=lambda x: math.floor(x['charges']))
+    }
+    ### histogram of above
+
+    # percentage of rides that have a discount applied
+    discount_pct = hires.aggregate(has_dis=Count('discount_applied'))['has_dis'] / hires.count() * 100
+
+    # charges per month
+    charges_by_month = hires.values('date_hired', 'charges').order_by('date_hired')
+    hbm = {
+        k: sum(v['charges'] for v in list(v)) \
+            for k,v in groupby(charges_by_month, key=lambda date: date['date_hired'].month)
+    }
+
+    # charges per user type
+    charges_per_usertype = hires.values('user__membership_type').order_by('user__membership_type') \
+        .annotate(amt=Sum('charges'))
+
+    # users with outstanding charges
+    users_in_debt = UserProfile.objects.filter(charges__gt=0)
+    # total amount still to be collected in charges
+    total_charges_for_collection = users_in_debt.aggregate(charges=Sum('charges'))
+
+    # amount liquid
+    liquid_money = total_income['income'] - total_charges_for_collection['charges']
+
+    return HttpResponse("testing")

@@ -4,7 +4,7 @@ import datetime
 import math
 
 from .choices import MembershipType
-from .models import BikeHires
+from .models import BikeHires, UserDiscounts
 
 class CostCalculator():
     """ This class is responsible for calculating the cost of a bike ride based on:

@@ -71,15 +71,25 @@ def location_detail(request, pk):
 
 @login_required
 def profile(request):
+    # get current user and userprofile models from the request
     user = request.user
     current_user = UserProfile.objects.get(user=user)
-    num_bike_rides = BikeHires.objects.filter(user=current_user).count()
+
+    # filter out the user's rides from the database
+    user_rides = BikeHires.objects.filter(user=current_user)
+    # get the total number of rides the user has taken
+    num_bike_rides = user_rides.count()
+
+    # calculate the total distance the user has travelled in all their rides
+    distance_travelled = sum([utils.ride_distance(hire).km for hire in user_rides])
     photo_form = UserProfileForm({'picture': current_user.profile_pic})
     context = {
         "num_bike_rides": num_bike_rides,
-        "profile_form": photo_form
+        "profile_form": photo_form,
+        "distance_travelled": distance_travelled,
     }
     
+    # return the HTML template with the context dictionary attached
     return render(request, 'bikes/profile.html', context) 
 
 @login_required
@@ -134,6 +144,10 @@ def user_hires(request):
             .annotate(duration=duration)
         historical_hires = historical_hires.order_by(ordering)
     
+    # annotate the historical hires models with the distance travelled for each ride
+    for h in historical_hires:
+        h.distance = utils.ride_distance(h)
+
     context = {
         "current_hire": current_hire,
         "historical_hires": historical_hires
