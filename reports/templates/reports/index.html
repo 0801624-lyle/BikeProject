@@ -61,7 +61,7 @@
 
         <br/>
 
-        <div class="card-columns">
+        <div class="card-deck">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
@@ -71,6 +71,19 @@
                     </h5>
                     <p class="card-text text-success">
                         A report showing information about bike status - showing the number of bikes on hire, number available, and number currently being repaired.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                    <a href="{% url 'reports:path_routes' %}">
+                        <i class="zmdi zmdi-info text-success"></i>
+                        User Route Report</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        A report showing where users most frequently go to when hiring a bike from a given station
                     </p>
                 </div>
             </div>

@@ -1,7 +1,9 @@
 from collections import namedtuple
+from datetime import datetime
 
 from django.db.models import F
 from django.utils import timezone
+import pytz
 import geopy.distance
 
 from .cost_calculator import CostCalculator
@@ -55,3 +57,17 @@ def ride_distance(hire):
         dist = geopy.distance.distance(start, end) # calculate geodesic distance
         return Distance(km=dist.km, miles=dist.miles, feet=dist.feet)
     return 0 # if end is None
+
+def parse_dates(date_from, date_to):
+    """ Creates timezone aware datetime objects from string parameters """
+    day_from, month_from, year_from = date_from.split("-")
+    day_to, month_to, year_to = date_to.split("-")
+    
+    _from = datetime(
+        year=int(year_from), month=int(month_from), day=int(day_from), tzinfo=pytz.UTC
+    )
+    _to = datetime(
+        year=int(year_to), month=int(month_to), day=int(day_to), tzinfo=pytz.UTC
+    )
+
+    return _from, _to

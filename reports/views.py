@@ -1,7 +1,9 @@
 import math
+import os
 from datetime import datetime
 from itertools import groupby
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, Sum, Avg, Max
@@ -13,10 +15,14 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource
 from bokeh.palettes import *
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+import networkx as nx
 
 from bikes.choices import UserType, MembershipType
 from bikes.models import Bikes, Location, BikeHires, UserProfile
-from bikes.utils import ride_distance
+from bikes.utils import ride_distance, parse_dates
 from reports.models import LocationBikeCount
 
 
@@ -208,3 +214,100 @@ def financial_report(request):
     liquid_money = total_income['income'] - total_charges_for_collection['charges']
 
     return HttpResponse("testing")
+
+
+def path_routes(request):
+    SAVE_PATH = os.path.join(settings.STATIC_DIR, 'network.png')
+    locations = Location.objects.all()
+
+    # add nodes to graph
+    G = nx.DiGraph()
+    for loc in locations:
+        G.add_node(loc.station_name, pos=(loc.longitude, loc.latitude))
+
+    station_urlparam = request.GET.get('station', None)
+    if station_urlparam is None:
+        station = locations.first()
+    else:
+        station = locations.get(pk=station_urlparam)
+
+    # extract date args from request (if given)
+    date_from = request.GET.get('date_from', None)
+    date_to   = request.GET.get('date_to', None)
+    date_from_should_filter = date_from is not None and len(date_from) > 0
+    date_to_should_filter = date_to is not None and len(date_to) > 0
+
+
+    # get all hires from the given station. filter by date if applicable
+    station_links = BikeHires.objects.filter(start_station=station, end_station__isnull=False) \
+        .select_related('start_station', 'end_station')
+
+    if date_from_should_filter and date_to_should_filter:
+        date_from, date_to = parse_dates(date_from, date_to)
+        station_links = station_links.filter(date_hired__gt=date_from, date_hired__lt=date_to)
+        ride_counts = BikeHires.objects.filter(start_station=station, date_hired__gt=date_from, date_hired__lt=date_to) \
+            .values('end_station').order_by('end_station').annotate(cnt=Count('end_station'))
+    else:
+        # get number of rides from given station to all other stations
+        ride_counts = BikeHires.objects.filter(start_station=station).values('end_station') \
+            .order_by('end_station').annotate(cnt=Count('end_station'))
+
+    # add edges to the graphs for all rides
+    for hire in station_links:
+        start = hire.start_station.station_name
+        end   = hire.end_station.station_name
+        G.add_edge(start, end) # add edge to graph
+
+    # construct journey counts formatted for adding label to each edge in the graph
+    edge_counts = {
+        (station.station_name, Location.objects.get(pk=e['end_station']).station_name): e['cnt'] for e in ride_counts
+    }
+
+    # remove self loops from the graph
+    if (station.station_name, station.station_name) in edge_counts.keys():
+        del edge_counts[(station.station_name, station.station_name)]
+
+    # graph options
+    options = {
+        'node_color': 'blue',
+        'node_size': 30,
+        'line_color': 'grey',
+        'linewidths': 1,
+        'edge_color': 'green',
+        'width': 2
+    }
+    fig = plt.figure(figsize=(12,8))
+    graph_pos=nx.spring_layout(G)
+
+    labels = {k:k for k in list(graph_pos.keys())}
+
+    # draw graph
+    nx.draw_networkx_edge_labels(G, graph_pos, edge_labels=edge_counts,font_size=16)
+    nx.draw_networkx_nodes(G,graph_pos, **options)
+    nx.draw_networkx_edges(G,graph_pos, width=2)
+
+    # get the given station's y coordinate on figure
+    station_ycoord = graph_pos[station.station_name][1]
+
+    # draw station labels on graph
+    for k,v in graph_pos.items():
+        if k == station.station_name:
+            continue
+        if v[1] >= float(station_ycoord):
+            plt.text(v[0], v[1] + .075, k, fontsize=10, bbox=dict(facecolor='red', alpha=0.3), horizontalalignment='center')
+        else:
+            plt.text(v[0], v[1] - .075, k, fontsize=10, bbox=dict(facecolor='red', alpha=0.3), horizontalalignment='center')
+
+    plt.title(f"Number of journeys from {station.station_name} \n(centred on graph)")      
+    plt.axis('off')
+    plt.savefig(SAVE_PATH)
+    context = {
+        "impath": 'network.png',
+        "ride_counts": edge_counts,
+        "current_station": station,
+        "locations": locations,
+        "date_from": request.GET.get('date_from', None),
+        "date_to": request.GET.get('date_to', None)
+    }
+
+    return render(request, 'reports/path-routes.html', context)
