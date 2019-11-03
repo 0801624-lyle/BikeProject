@@ -13,7 +13,7 @@ from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
 from .choices import MembershipType, BikeStatus
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
 from . import utils
@@ -198,7 +198,8 @@ def return_bike(request):
 def move_bike(request):
     form = MoveBikeForm(request.POST or None)
     if form.is_valid():
-        bike = Bikes.objects.get(pk=form.cleaned_data['bike_id'])
+        #bike = Bikes.objects.get(pk=form.cleaned_data['bike_id'])
+        bike = Bikes.objects.get(pk=Location.objects.form.location.bikes_set.first.id)
         bike = utils.move_bike(bike, form.cleaned_data['new_location'])
 
         messages.info(request, f"Bike {bike.pk} has been moved to {bike.location}.")
