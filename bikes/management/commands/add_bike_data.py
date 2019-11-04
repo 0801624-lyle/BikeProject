@@ -147,7 +147,9 @@ class Command(BaseCommand):
             bike = random.choice(bikes)
             dt = self._get_random_datetime()
             dt_repaired = dt + timezone.timedelta(days=random.randint(1,10))
-            cost = random.randint(5, 50)
+            cost = random.randint(2, 40)
+            if cost > 30 and random.random() < .5:
+                cost = cost // 2
             BikeRepairs.objects.create(bike=bike, date_malfunctioned=dt, date_repaired=dt_repaired, repair_cost=cost)
 
     def _get_random_duration(self):

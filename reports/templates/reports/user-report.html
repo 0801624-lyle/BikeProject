@@ -16,6 +16,26 @@
     </div>
     <hr/>
     <div class="row">
+
+        <div class="col-4 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">User Statistics</h5>
+                    <p class="card-text">
+                        <ul class="list-group">
+                            <li class="list-group-item">Total number of users: 
+                                <strong class="ml-3">{{ usercount }}</strong>
+                            </li>
+                            <li class="list-group-item">Total distance cycled: 
+                                <strong class="ml-3">{{ total_distance_cycled|floatformat:2 }} km</strong>
+                            </li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
         <div class="col-6 col-sm-4">
             <p>The following bar chart shows the number of users belonging to each different membership type:</p>
             {{ div|safe }}

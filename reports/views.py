@@ -1,5 +1,6 @@
 import math
 import os
+import calendar
 from datetime import datetime
 from itertools import groupby
 
@@ -15,13 +16,14 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import HoverTool, LassoSelectTool, WheelZoomTool, PointDrawTool, ColumnDataSource
 from bokeh.palettes import *
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import networkx as nx
 
 from bikes.choices import UserType, MembershipType
-from bikes.models import Bikes, Location, BikeHires, UserProfile
+from bikes.models import Bikes, Location, BikeHires, UserProfile, UserDiscounts, BikeRepairs
 from bikes.utils import ride_distance, parse_dates
 from reports.models import LocationBikeCount
 
@@ -155,7 +157,9 @@ def user_report(request):
         "script": script,
         "div": div,
         "script2": script2,
-        "div2": div2
+        "div2": div2,
+        "usercount": users.count(),
+        "total_distance_cycled": total_distance_cycled,
     }
 
     return render(request, "reports/user-report.html", context)
@@ -176,20 +180,28 @@ def financial_report(request):
     # average per ride
     avg_per_ride = BikeHires.objects.aggregate(avg=Avg('charges'))
 
-    # 5 maximum charges for individual rides
-    maximum_charges = BikeHires.objects.annotate(max_charge=Max('charges')).order_by('-max_charge')[:5]
+    # maximum charges for individual rides
+    maximum_charges = BikeHires.objects.annotate(max_charge=Max('charges')).order_by('-max_charge')[0]
 
     # get hire charges ordered from smallest to largest charge
     hires_by_charge = hires.order_by('charges').values('charges')
+
+    # create a histogram showing distribution of bike charges    
+    arr = np.array([h['charges'] for h in list(hires_by_charge)])
+    bins = np.arange(0, arr[-1], 1)
+    hist, edges = np.histogram(arr, bins=bins)
+
+    # hire_charge_source = ColumnDataSource(
+    #     data=dict(costs=list(hires_by_charge_quantized.keys()), count=list(hires_by_charge_quantized.values()))
+    # )
+    hist_figure = figure(plot_height = 400, plot_width = 450, 
+            title = 'Bike Charges - distribution',
+            x_axis_label = 'Cost (£)', 
+            y_axis_label = 'Number of rides')
+
+    hist_figure.quad(bottom=0, top=hist, left=edges[:-1], right=edges[1:], fill_color='red', line_color='black')
     
-    # group the hires into discrete bins - i.e., all hires between £1 and £2 get grouped together
-    # all hires between £x and £x+1 are grouped, and the number of hires for each bin is calculated
-    # The below code uses a dictionary comprehension and the itertools.groupby function to do this
-    # the key function for the grouping is the math.floor function, applied to an individual bike hire's charge field
-    hires_by_charge_quantized = {
-        k: len(list(v)) for k, v in groupby(hires_by_charge, key=lambda x: math.floor(x['charges']))
-    }
-    ### histogram of above
+    hist1_script, hist1_div = components(hist_figure)
 
     # percentage of rides that have a discount applied
     discount_pct = hires.aggregate(has_dis=Count('discount_applied'))['has_dis'] / hires.count() * 100
@@ -200,23 +212,73 @@ def financial_report(request):
         k: sum(v['charges'] for v in list(v)) \
             for k,v in groupby(charges_by_month, key=lambda date: date['date_hired'].month)
     }
+    months = [calendar.month_abbr[a] for a in list(hbm.keys())]
+    charges = [c for c in list(hbm.values())]
+
+    per_month_fig = figure(title="Income per month", plot_height=400, plot_width=400, y_range=months,
+                    x_axis_label = 'Cost (£)', y_axis_label = 'Month')
+    per_month_fig.hbar(y=months, left=0, right=charges, height=.5, color="#CAB2D6")
+
+    mscript, mdiv = components(per_month_fig)
+
 
     # charges per user type
     charges_per_usertype = hires.values('user__membership_type').order_by('user__membership_type') \
         .annotate(amt=Sum('charges'))
+    
+    memberships = [u[1] for u in MembershipType.CHOICES]
+    costs = [m['amt'] for m in charges_per_usertype]
+
+    usertype_fig = figure(title="Income per Membership Type", plot_height=400, plot_width=400,
+        y_axis_label = 'Total Charges', x_range=memberships)
+
+    usertype_fig.vbar(x=memberships, bottom=0, top=costs, width=.8)
+
+    utype_script, utype_div = components(usertype_fig)
 
     # users with outstanding charges
     users_in_debt = UserProfile.objects.filter(charges__gt=0)
+
     # total amount still to be collected in charges
     total_charges_for_collection = users_in_debt.aggregate(charges=Sum('charges'))
 
     # amount liquid
     liquid_money = total_income['income'] - total_charges_for_collection['charges']
 
-    return HttpResponse("testing")
+    # amount saved by discounts
+    discount_savings = UserDiscounts.objects.aggregate(saved=Sum('amount_saved'))['saved']
+
+    # total number of repairs
+    total_repairs = BikeRepairs.objects.count()
+
+    # repair cost total
+    repair_cost = BikeRepairs.objects.aggregate(total=Sum('repair_cost'))['total']
+
+    context = {
+        "hist1_div": hist1_div,
+        "hist1_script": hist1_script,
+        "total_income": total_income['income'],
+        "avg_per_ride": avg_per_ride['avg'],
+        "maximum_charges": maximum_charges.max_charge,
+        "discount_pct": discount_pct,
+        "users_in_debt": users_in_debt.count(),
+        "uncollected_charges": total_charges_for_collection['charges'],
+        "discount_savings": discount_savings,
+        "mscript": mscript,
+        "mdiv": mdiv,
+        "utype_script": utype_script,
+        "utype_div": utype_div,
+        "total_repairs": total_repairs,
+        "repair_cost": repair_cost
+    }
 
 
+    return render(request, 'reports/financial-report.html', context)
+
+@login_required
 def path_routes(request):
+    if not is_manager(request.user):
+        return redirect(reverse('bikes:index'))
     SAVE_PATH = os.path.join(settings.STATIC_DIR, 'network.png')
     locations = Location.objects.all()
 
