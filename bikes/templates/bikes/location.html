@@ -157,13 +157,13 @@ $("#confirm-repair-btn").on("click", function(e) {
 
 $(".bike-repair-btn").on("click", function() {
     var bike_id = $.trim($(this).data('bikeid'))
-    console.log(bike_id + ", <")
     $(".modal-bikeid").text(bike_id)
     $("#id_bike").attr("value", parseInt(bike_id, 10))
 })
 
 
 function initMap() {
+    // generates the Google Map for the page
     var lat = "{{ location.latitude|safe }}"
     var lon = "{{ location.longitude|safe }}"
     var station = "{{ location.station_name|safe }}"

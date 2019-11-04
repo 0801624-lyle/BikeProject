@@ -187,26 +187,31 @@ def hire_bike(request):
 
 @login_required
 def return_bike(request):
+    """ Returns a bike to a given station """
     user = request.user.userprofile
-    form = ReturnBikeForm(request.POST or None)
+    form = ReturnBikeForm(request.POST or None) # populate the bike form with POST data
     if form.is_valid():
-        hire = BikeHires.objects.get(pk=form.cleaned_data['hire_id'])
+        hire = BikeHires.objects.get(pk=form.cleaned_data['hire_id']) # get model object
+
+        # call utils function to perform all actions required when returning a bike
         hire = utils.return_bike(hire, form.cleaned_data['location'], form.cleaned_data['discount'])
-        print(form.cleaned_data['discount'])
         messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges:.2f}")
+
+    # redirect user to their hires page
     return redirect(reverse('bikes:user-hires'))
 
 @login_required
 def move_bike(request):
+    """ Moves a bike from location A to location B """
     form = MoveBikeForm(request.POST or None)
     if form.is_valid():
-        old = form.cleaned_data['location']
-        new = form.cleaned_data['new_location']
-        #bike = Bikes.objects.get(pk=form.cleaned_data['bike_id'])
-        bike = Bikes.objects.get(pk=old.bikes_set.first().id)
-        bike = utils.move_bike(bike, new)
-        print("hello from views")
+        old = form.cleaned_data['location'] # get original station
+        new = form.cleaned_data['new_location'] # get new station 
+        bike = Bikes.objects.get(pk=old.bikes_set.first().id) # get bike object from database
+        bike = utils.move_bike(bike, new) # call utils method to move the bike
+        
         messages.info(request, f"Bike {bike.pk} has been moved to {bike.location}.")
+    messages.error(request, "An error occurred while trying to move the bike")
     return redirect(reverse('bikes:operator-index'))
     
 class RegistrationView(SuccessMessageMixin, CreateView):
@@ -278,7 +283,7 @@ class LocationList(ListAPIView):
 
 def bike_report(request):
     """ view for handling reporting a Bike as needing repair """
-    
+    # populate the form with POST request data
     form = BikeRepairsForm(request.POST) 
     if form.is_valid():
 
@@ -294,7 +299,6 @@ def bike_report(request):
 
         messages.info(request, f"Bike {bike.pk} has been reported for repair, and taken out of circulation")
         return redirect(reverse('bikes:view-map'))
-    print(request.POST)
     messages.error(request, f"Warning: a problem occurred reporting bike")
     return redirect(reverse('bikes:view-map'))
 
@@ -302,7 +306,7 @@ def bike_report(request):
 # OPERATOR VIEWS
 
 def is_operator(user):
-    """ This function is the 'test' for which a user must pass to view the reports pages.
+    """ This function is the 'test' for which a user must pass to view the operator pages.
         The user must be of type UserType.OPERATOR in order to view any of these pages. """
 
     return user.userprofile.user_type == UserType.OPERATOR or user.userprofile.user_type == UserType.MANAGER
@@ -322,6 +326,7 @@ def operator_index(request):
     return render(request, 'bikes/operator_index.html',context)
 
 @csrf_exempt
+@login_required
 def track_bike(request):
     if not is_operator(request.user):
         return redirect(reverse('bikes:index'))
