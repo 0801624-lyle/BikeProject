@@ -294,6 +294,9 @@ def bike_report(request):
 
         messages.info(request, f"Bike {bike.pk} has been reported for repair, and taken out of circulation")
         return redirect(reverse('bikes:view-map'))
+    print(request.POST)
+    messages.error(request, f"Warning: a problem occurred reporting bike")
+    return redirect(reverse('bikes:view-map'))
 
 ################## 
 # OPERATOR VIEWS

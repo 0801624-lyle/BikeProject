@@ -85,6 +85,9 @@ class Location(models.Model):
     longitude = models.FloatField()
     initial_bike_count = models.IntegerField(default=0)
 
+    def num_bikes(self):
+        return self.bikes_set.filter(status=BikeStatus.AVAILABLE).count()
+
     class Meta:
         ordering = ("station_name",)
 

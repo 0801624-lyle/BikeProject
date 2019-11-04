@@ -32,7 +32,7 @@
                             <h5 class="card-title">
                                 <a href="{% url 'bikes:location_detail' location.pk %}">{{ location.station_name }}</a>
                             </h5>
-                            <p class="card-text">{{location.bikes_set.count}} bikes available</p>
+                            <p class="card-text">{{location.num_bikes }} bikes available</p>
                         </div>
                     </div>
                 {% endfor %}

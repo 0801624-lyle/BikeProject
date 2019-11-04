@@ -63,7 +63,7 @@
                             </button>
 
                         <!-- Report bike for repair button -->
-                        <button type ="button" class="btn btn-outline-secondary" id="bike-repair-btn"
+                        <button type ="button" class="btn btn-outline-secondary bike-repair-btn"
                              data-toggle="modal" 
                              data-target="#bike-report-modal" 
                              data-bikeid="{{bike.pk}}"
@@ -155,8 +155,9 @@ $("#confirm-repair-btn").on("click", function(e) {
 });
 
 
-$("#bike-repair-btn").on("click", function() {
+$(".bike-repair-btn").on("click", function() {
     var bike_id = $.trim($(this).data('bikeid'))
+    console.log(bike_id + ", <")
     $(".modal-bikeid").text(bike_id)
     $("#id_bike").attr("value", parseInt(bike_id, 10))
 })

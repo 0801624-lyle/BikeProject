@@ -5,60 +5,57 @@
 {% endblock %}
 
 {% block content %}
-<style type="text/css">
-    <!--
-     .tab { margin-left: 40px; }
-    -->
-</style>
+
     <div class="container">
-        <h1>Welcome to the Rainy Bikes front page</h1>
-        <div class="row">
-            <form>
-                <fieldset>
-                    <legend>Select a station</legend>
-                    <p>
-                        <label>Select a station</label>
-                        <select id="stationList" onchange="showInfo()">
-                            <option value="" selected disabled hidden>Select here</option>
+        <h3 class="my-3 text-primary">Welcome to the Rainy Bikes application</h3>
 
-                            
-                            <!--I used the variables I needed as id and value for the options in the dropdown menu. -->
-                            <!-- I was not sure how to find those values inside a javascript function.-->
-                            {% for location in locations %}
-                                <option id={{location.bikes_set.first.id}} value={{location.bikes_set.count}}>{{location.station_name}}</option>
-                            {% endfor %}
-                        </select>
-                    </p>
-                </fieldset>
-            </form>
-            
-            
-                <p class ="tab" id="location_info"></p>
-                <button class ="tab" type="button" onclick="hireBike()">Hire a bike</button>
-                <p class ="tab" id="bike_info"></p>
-            
+        <hr/>
 
+        <p>This application allows you to hire bikes and use them throughout our stations in Glasgow, Scotland!</p>
+        
+        <div class="row mt-4">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">Hire and return bikes from the following locations:</h5>
+                        <p class="card-text mt-3">
+                            <ul class="list-group">
+                                {% for loc in locations %}
+                                    <li class="list-group-item">{{ loc.station_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">Membership Options</h5>
+                        <p class="card-text">
+                            <ul class="list-group">
+                                <li class="list-group-item">Standard - £2 per ride</li>
+                                <li class="list-group-item">Student - £1 per ride</li>
+                                <li class="list-group-item">Pensioner - £0.50 per ride</li>
+                                <li class="list-group-item">Staff members - £0.50 per ride</li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+                
+        <p class="my-3"> The first 30 minutes of your ride will cost the above. For every 30 minutes after that, however, you will incur
+        an additional £1 charge. So make sure not to take too long on your bike!</p>
+            </div>
         </div>
+
+        {% if not user.is_authenticated %}
+            <p>If you have an account already with us, <a href="{% url 'bikes:login' %}">click here</a> to login!
+            <p>Otherwise, <a href="{% url 'bikes:register' %}">click here</a> to register an account with us!</p>
+        {% endif %}
+
+        <p class="mt-3 h4 text-success">Thank you for visiting Rainy Bikes, and <b>happy cycling!</b></p>
     </div>
-
-    <script>
-        function showInfo() {
-            var selected = document.getElementById("stationList");
-            var stationbikenumber = selected.options[selected.selectedIndex].value;
-            var stationname = selected.options[selected.selectedIndex].text;
-            var locinfo = document.getElementById("bike_info");
-            locinfo.innerHTML = (stationname + ' station currently has ' + stationbikenumber + ' available for hire.');
-        }
-    </script>
-
-    <script>
-        function hireBike() {
-            var selected = document.getElementById("stationList");
-            var bikeid = selected.options[selected.selectedIndex].id;
-            var stationname = selected.options[selected.selectedIndex].text;
-            var bikeinfo = document.getElementById("location_info");
-            bikeinfo.innerHTML = ("You have hired bike number " + bikeid + " at " + stationname + " station.");
-        }
-    </script>
 
 {% endblock %}
