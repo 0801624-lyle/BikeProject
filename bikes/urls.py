@@ -17,6 +17,7 @@ urlpatterns = [
 
     # operator pages
     path('operator/index/', views.operator_index, name='operator-index'),
+    path('operator/create-discount/', views.create_discount, name="create-discount"),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),
@@ -36,4 +37,6 @@ urlpatterns = [
     path('api/list/locations', views.LocationList.as_view(), name='location_list'),
 
     path('repairbike/', views.bike_report, name='bike_repair'),
+
+    path('bike/track_bike/', views.track_bike, name="track_bike")
 ]

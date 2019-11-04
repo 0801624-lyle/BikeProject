@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
 from .choices import MembershipType
-from .models import UserProfile, Bikes,BikeRepairs, Location
+from .models import UserProfile, Bikes,BikeRepairs, Location,Discounts
 
 # For registering new users
 class RegistrationForm(forms.ModelForm):
@@ -65,7 +65,6 @@ class ReturnBikeForm(forms.Form):
     discount = forms.CharField(required=False, label="Discount Code")
 
 class MoveBikeForm(forms.Form):
-    bike_id = 452
     location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name')) # how do i make this list display bike count as well?
     new_location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name'), label = "New station")
 
@@ -77,3 +76,8 @@ class BikeRepairsForm(forms.ModelForm):
     class Meta:
         model= BikeRepairs
         fields=('bike',)
+
+class DiscountsForm(forms.ModelForm):
+     class Meta:
+         model= Discounts
+         fields=('__all__')

@@ -60,6 +60,20 @@
                     </p>
                 </div>
             </div>
+
+            <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a data-toggle="modal" href="#create-discount-modal">
+                                <i class="zmdi zmdi-gps-dot text-success"></i>
+                                Create Discount
+                            </a>
+                        </h5>
+                        <p class="card-text text-success">
+                            Create a discount for users
+                        </p>
+                    </div>
+                </div>
             
         </div>
         
@@ -71,12 +85,51 @@
 
     {% include 'includes/track_bike_modal.html' %}
 
+    {% include 'includes/create-discount-modal.html' %}
+
+{% endblock %}
+
+{% block js %}
+
     <script>
+        function showLocation() {
+                var url = "{{ trackurl|safe }}"
+                var bike = document.getElementById("track-bike-input");
+                var bikeID = parseInt(bike.value);
+                var locinfo = document.getElementById("location-info");
+                var nobike = document.getElementById("no-bike")
+                
+                
+                $.post(url, {"bike_id": bikeID}, function(data) {
+                    var location = data.bike_location
+                    if (location != "None") {
+                        locinfo.innerHTML = ("Bike number " + bikeID + " is located at " + location);
+                        nobike.innerHTML = ("")
+                    }
+                    else {
+                        nobike.innerHTML = ("This bike does not exist.")
+                        locinfo.innerHTML = ("");
+                    }
+
+                })
+            }
 
         $("#move-bike-btn").on("click", function() {
             $("#move-bike-form").submit()
         })
             
+        $("#track-bike-btn").on("click", function(e) {
+            e.preventDefault()
+
+            showLocation()
+        })
+
+        $("#create-discount-btn").on("click", function() {
+            $("#create-discount-form").submit()
+        })
+            
     </script>
+
+    
 
 {% endblock %}

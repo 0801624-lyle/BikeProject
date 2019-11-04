@@ -89,7 +89,7 @@ class Location(models.Model):
         ordering = ("station_name",)
 
     def __str__(self):
-        return self.station_name
+        return self.station_name + ": " + str(self.bikes_set.count()) + " bikes"
 
 class BikeHires(models.Model):
     """ A table that tracks all historical bike hires.

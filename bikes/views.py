@@ -8,12 +8,14 @@ from django.db.models import F, ExpressionWrapper, fields
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic.edit import CreateView
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
-from .choices import MembershipType, BikeStatus
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm
+from .choices import MembershipType, BikeStatus, UserType
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm, DiscountsForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
 from . import utils
@@ -198,10 +200,12 @@ def return_bike(request):
 def move_bike(request):
     form = MoveBikeForm(request.POST or None)
     if form.is_valid():
+        old = form.cleaned_data['location']
+        new = form.cleaned_data['new_location']
         #bike = Bikes.objects.get(pk=form.cleaned_data['bike_id'])
-        bike = Bikes.objects.get(pk=Location.objects.form.location.bikes_set.first.id)
-        bike = utils.move_bike(bike, form.cleaned_data['new_location'])
-
+        bike = Bikes.objects.get(pk=old.bikes_set.first().id)
+        bike = utils.move_bike(bike, new)
+        print("hello from views")
         messages.info(request, f"Bike {bike.pk} has been moved to {bike.location}.")
     return redirect(reverse('bikes:operator-index'))
     
@@ -294,5 +298,51 @@ def bike_report(request):
 ################## 
 # OPERATOR VIEWS
 
+def is_operator(user):
+    """ This function is the 'test' for which a user must pass to view the reports pages.
+        The user must be of type UserType.OPERATOR in order to view any of these pages. """
+
+    return user.userprofile.user_type == UserType.OPERATOR or user.userprofile.user_type == UserType.MANAGER
+
+@login_required
 def operator_index(request):
-    return render(request, 'bikes/operator_index.html')
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+
+    trackurl = reverse('bikes:track_bike')
+    discount_form = DiscountsForm()
+    context = {
+        "form" : MoveBikeForm(),
+        "trackurl": trackurl,
+        "discount_form": discount_form,
+    }
+    return render(request, 'bikes/operator_index.html',context)
+
+@csrf_exempt
+def track_bike(request):
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+    bike_id = request.POST['bike_id']
+    try:
+        bike = Bikes.objects.get(pk = bike_id)
+        bike_location = bike.location
+        return JsonResponse({"bike_location" : bike_location.station_name})
+    except Bikes.DoesNotExist:
+        return JsonResponse({"bike_location": "None"})
+
+@login_required
+def create_discount(request):
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+
+    form = DiscountsForm(request.POST or None)
+    if form.is_valid():
+        code = form.cleaned_data.get('code')
+        data_from = form.cleaned_data.get('date_from', timezone.now())
+        date_to = form.cleaned_data.get('date_to', timezone.now() + timezone.timedelta(days=10))
+        discount_amount = form.cleaned_data.get('discount_amount')
+        
+        discount = form.save()
+        messages.info(request, f"Discount was created with code {discount.code}")
+        
+    return redirect(reverse('bikes:operator-index'))
