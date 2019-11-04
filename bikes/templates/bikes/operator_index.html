@@ -97,12 +97,18 @@
                 var bike = document.getElementById("track-bike-input");
                 var bikeID = parseInt(bike.value);
                 var locinfo = document.getElementById("location-info");
+                var nobike = document.getElementById("no-bike")
                 
                 
                 $.post(url, {"bike_id": bikeID}, function(data) {
                     var location = data.bike_location
                     if (location != "None") {
                         locinfo.innerHTML = ("Bike number " + bikeID + " is located at " + location);
+                        nobike.innerHTML = ("")
+                    }
+                    else {
+                        nobike.innerHTML = ("This bike does not exist.")
+                        locinfo.innerHTML = ("");
                     }
 
                 })
