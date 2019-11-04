@@ -65,7 +65,6 @@ class ReturnBikeForm(forms.Form):
     discount = forms.CharField(required=False, label="Discount Code")
 
 class MoveBikeForm(forms.Form):
-    bike_id = 452
     location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name')) # how do i make this list display bike count as well?
     new_location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name'), label = "New station")
 

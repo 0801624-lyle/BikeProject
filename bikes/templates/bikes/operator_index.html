@@ -69,11 +69,13 @@
 
     {% include 'includes/move_bike_modal.html' %}
 
-    {% include 'includes/track_bike_modal.html' %}
+{% endblock %}
+
+{% block js %}
 
     <script>
-
         $("#move-bike-btn").on("click", function() {
+            console.log("hello from operator")
             $("#move-bike-form").submit()
         })
             

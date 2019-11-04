@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView
 from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
-from .choices import MembershipType, BikeStatus
+from .choices import MembershipType, BikeStatus, UserType
 from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
@@ -198,10 +198,12 @@ def return_bike(request):
 def move_bike(request):
     form = MoveBikeForm(request.POST or None)
     if form.is_valid():
+        old = form.cleaned_data['location']
+        new = form.cleaned_data['new_location']
         #bike = Bikes.objects.get(pk=form.cleaned_data['bike_id'])
-        bike = Bikes.objects.get(pk=Location.objects.form.location.bikes_set.first.id)
-        bike = utils.move_bike(bike, form.cleaned_data['new_location'])
-
+        bike = Bikes.objects.get(pk=old.bikes_set.first().id)
+        bike = utils.move_bike(bike, new)
+        print("hello from views")
         messages.info(request, f"Bike {bike.pk} has been moved to {bike.location}.")
     return redirect(reverse('bikes:operator-index'))
     
@@ -294,5 +296,17 @@ def bike_report(request):
 ################## 
 # OPERATOR VIEWS
 
+def is_operator(user):
+    """ This function is the 'test' for which a user must pass to view the reports pages.
+        The user must be of type UserType.OPERATOR in order to view any of these pages. """
+
+    return user.userprofile.user_type == UserType.OPERATOR or user.userprofile.user_type == UserType.MANAGER
+
+@login_required
 def operator_index(request):
-    return render(request, 'bikes/operator_index.html')
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+    context = {
+        "form" : MoveBikeForm()
+    }
+    return render(request, 'bikes/operator_index.html',context)
