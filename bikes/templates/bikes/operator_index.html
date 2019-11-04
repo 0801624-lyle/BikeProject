@@ -69,16 +69,46 @@
 
     {% include 'includes/move_bike_modal.html' %}
 
+    {% include 'includes/track_bike_modal.html' %}
+
 {% endblock %}
 
 {% block js %}
 
     <script>
+        function showLocation() {
+                var url = "{{ trackurl|safe }}"
+                var bike = document.getElementById("track-bike-input");
+                var bikeID = parseInt(bike.value);
+                var locinfo = document.getElementById("location-info");
+                
+                
+                $.post(url, {"bike_id": bikeID}, function(data) {
+                    var location = data.bike_location
+                    if (location != "None") {
+                        locinfo.innerHTML = ("Bike number " + bikeID + " is located at " + location);
+                    }
+
+                })
+            }
+    </script>
+
+    <script>
         $("#move-bike-btn").on("click", function() {
-            console.log("hello from operator")
             $("#move-bike-form").submit()
         })
             
     </script>
+
+    <script>
+        $("#track-bike-btn").on("click", function(e) {
+            e.preventDefault()
+
+            showLocation()
+        })
+            
+    </script>
+
+    
 
 {% endblock %}

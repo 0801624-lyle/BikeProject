@@ -36,4 +36,6 @@ urlpatterns = [
     path('api/list/locations', views.LocationList.as_view(), name='location_list'),
 
     path('repairbike/', views.bike_report, name='bike_repair'),
+
+    path('bike/track_bike/', views.track_bike, name="track_bike")
 ]

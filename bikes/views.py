@@ -9,6 +9,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
@@ -306,7 +307,20 @@ def is_operator(user):
 def operator_index(request):
     if not is_operator(request.user):
         return redirect(reverse('bikes:index'))
+
+    trackurl = reverse('bikes:track_bike')
     context = {
-        "form" : MoveBikeForm()
+        "form" : MoveBikeForm(),
+        "trackurl": trackurl
     }
     return render(request, 'bikes/operator_index.html',context)
+
+@csrf_exempt
+def track_bike(request):
+    bike_id = request.POST['bike_id']
+    try:
+        bike = Bikes.objects.get(pk = bike_id)
+        bike_location = bike.location
+        return JsonResponse({"bike_location" : bike_location.station_name})
+    except Bikes.DoesNotExist:
+        return JsonResponse({"bike_location": "None"})
