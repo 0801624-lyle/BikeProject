@@ -60,6 +60,20 @@
                     </p>
                 </div>
             </div>
+
+            <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a data-toggle="modal" href="#create-discount-modal">
+                                <i class="zmdi zmdi-gps-dot text-success"></i>
+                                Create Discount
+                            </a>
+                        </h5>
+                        <p class="card-text text-success">
+                            Create a discount for users
+                        </p>
+                    </div>
+                </div>
             
         </div>
         
@@ -70,6 +84,8 @@
     {% include 'includes/move_bike_modal.html' %}
 
     {% include 'includes/track_bike_modal.html' %}
+
+    {% include 'includes/create-discount-modal.html' %}
 
 {% endblock %}
 
@@ -91,20 +107,19 @@
 
                 })
             }
-    </script>
 
-    <script>
         $("#move-bike-btn").on("click", function() {
             $("#move-bike-form").submit()
         })
             
-    </script>
-
-    <script>
         $("#track-bike-btn").on("click", function(e) {
             e.preventDefault()
 
             showLocation()
+        })
+
+        $("#create-discount-btn").on("click", function() {
+            $("#create-discount-form").submit()
         })
             
     </script>

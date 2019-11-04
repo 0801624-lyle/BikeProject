@@ -17,6 +17,7 @@ urlpatterns = [
 
     # operator pages
     path('operator/index/', views.operator_index, name='operator-index'),
+    path('operator/create-discount/', views.create_discount, name="create-discount"),
 
     # login and registration views
     path('profile/', views.profile, name='profile'),

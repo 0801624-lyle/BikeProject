@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
 from .choices import MembershipType
-from .models import UserProfile, Bikes,BikeRepairs, Location
+from .models import UserProfile, Bikes,BikeRepairs, Location,Discounts
 
 # For registering new users
 class RegistrationForm(forms.ModelForm):
@@ -76,3 +76,8 @@ class BikeRepairsForm(forms.ModelForm):
     class Meta:
         model= BikeRepairs
         fields=('bike',)
+
+class DiscountsForm(forms.ModelForm):
+     class Meta:
+         model= Discounts
+         fields=('__all__')
