@@ -8,6 +8,7 @@ import geopy.distance
 
 from .cost_calculator import CostCalculator
 from .models import *
+from reports.models import LocationBikeCount
 
 def return_bike(hire, end_station, user_discount_code):
     hire.end_station = end_station
@@ -39,10 +40,23 @@ def return_bike(hire, end_station, user_discount_code):
 def move_bike(bike, new_station):
     
     # set bike location
+    old = bike.location
     bike.location = new_station
-    bike.save()
+    
+    # update location bike count table for old and new stations
+    count = LocationBikeCount.objects.filter(location=old).last().count
+    LocationBikeCount.objects.create(
+        location=old, datetime=timezone.now(), count=count - 1
+    )
+    # add 1 to new bike station's count
+    count = LocationBikeCount.objects.filter(location=new_station).last().count
+    LocationBikeCount.objects.create(
+        location=new_station, datetime=timezone.now(), count=count + 1
+    )
 
+    bike.save()
     return bike
+
 def ride_distance(hire):
     """ Calculates a ride's distance between the start and end stations
         Uses geopy.distance.distance [an implementation of geodesic distance]
