@@ -344,9 +344,10 @@ def track_bike(request):
     try:
         bike = Bikes.objects.get(pk = bike_id)
         bike_location = bike.location
-        return JsonResponse({"bike_location" : bike_location.station_name})
+        bike_status = bike.status
+        return JsonResponse({"bike_location" : bike_location.station_name, "bike_status" : bike_status})
     except Bikes.DoesNotExist:
-        return JsonResponse({"bike_location": "None"})
+        return JsonResponse({"bike_location": "None", "bike_status" : "None"})
 
 @login_required
 def create_discount(request):
@@ -356,7 +357,7 @@ def create_discount(request):
     form = DiscountsForm(request.POST or None)
     if form.is_valid():
         code = form.cleaned_data.get('code')
-        data_from = form.cleaned_data.get('date_from', timezone.now())
+        date_from = form.cleaned_data.get('date_from', timezone.now())
         date_to = form.cleaned_data.get('date_to', timezone.now() + timezone.timedelta(days=10))
         discount_amount = form.cleaned_data.get('discount_amount')
         
@@ -365,3 +366,16 @@ def create_discount(request):
     else:
         messages.error(request, "A problem occurred when trying to create the discount")
     return redirect(reverse('bikes:operator-index'))
+
+@login_required
+def repair_bike(request):
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+    bike_id = request.POST['bike_id']
+    try:
+        bike = Bikes.objects.get(pk = bike_id)
+        bike_status = bike.status
+        bike_location = bike.location
+        return JsonResponse({"bike_status" : bike_status, "bike_location": bike_location.station_name})
+    except Bikes.DoesNotExist:
+        return JsonResponse({"bike_status": "None", "bike_location": "None"})

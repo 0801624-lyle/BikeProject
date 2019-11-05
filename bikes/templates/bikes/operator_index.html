@@ -38,8 +38,10 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="zmdi zmdi-wrench text-success"></i>
-                        Repair a bike
+                        <a data-toggle="modal" href="#repair-bike-modal">
+                            <i class="zmdi zmdi-wrench text-success"></i>
+                            Repair a bike
+                        </a>
                     </h5>
                     <p class="card-text text-success">
                         Repair a bike that has been reported as defective.
@@ -65,7 +67,7 @@
                     <div class="card-body">
                         <h5 class="card-title">
                             <a data-toggle="modal" href="#create-discount-modal">
-                                <i class="zmdi zmdi-gps-dot text-success"></i>
+                                <i class="zmdi zmdi-local-offer text-success"></i>
                                 Create Discount
                             </a>
                         </h5>
@@ -83,6 +85,8 @@
 
     {% include 'includes/move_bike_modal.html' %}
 
+    {% include 'includes/repair_bike_modal.html' %}
+
     {% include 'includes/track_bike_modal.html' %}
 
     {% include 'includes/create-discount-modal.html' %}
@@ -99,22 +103,83 @@
                 var bike = document.getElementById("track-bike-input");
                 var bikeID = parseInt(bike.value);
                 var locinfo = document.getElementById("location-info");
-                var nobike = document.getElementById("no-bike")
+                var locinfohire = document.getElementById("location-info-hire")
+                var locinfobroken = document.getElementById("location-info-broken")
+                var nobike = document.getElementById("no-bike-track")
                 
                 
                 $.post(url, {"bike_id": bikeID}, function(data) {
                     var location = data.bike_location
-                    if (location != "None") {
+                    var status = data.bike_status
+                    if (status == 1) {
                         locinfo.innerHTML = ("Bike number " + bikeID + " is located at " + location);
+                        locinfohire.innerHTML = ("")
+                        locinfobroken.innerHTML = ("")
+                        nobike.innerHTML = ("")
+                    }
+                    else if (status == 2) {
+                        locinfo.innerHTML = ("");
+                        locinfohire.innerHTML = ("Bike number " + bikeID + " is on hire. It was hired from " + location)
+                        locinfobroken.innerHTML = ("")
+                        nobike.innerHTML = ("")
+                    }
+                    else if (status == 3) {
+                        locinfo.innerHTML = ("");
+                        locinfohire.innerHTML = ("")
+                        locinfobroken.innerHTML = ("Bike number " + bikeID + " is located at " + location + " but it needs to be repaired.")
                         nobike.innerHTML = ("")
                     }
                     else {
                         nobike.innerHTML = ("This bike does not exist.")
+                        locinfohire.innerHTML = ("")
+                        locinfobroken.innerHTML = ("")
                         locinfo.innerHTML = ("");
                     }
 
                 })
             }
+
+
+        function showRepair() {
+            var url = "{{ trackurl|safe }}"
+            var bike = document.getElementById("repair-bike-input");
+            var bikeID = parseInt(bike.value);
+            var repairsuccess = document.getElementById("repair-success");
+            var repairfailhire = document.getElementById("repair-fail");
+            var repairfail = document.getElementById("repair-fail-hire");
+            var nobike = document.getElementById("no-bike-repair")
+
+                
+            $.post(url, {"bike_id": bikeID}, function(data) {
+                var status = data.bike_status
+                var location = data.bike_location
+                if (status == 3) {
+                    repairsuccess.innerHTML = ("Bike number " + bikeID + " has been repaired")
+                    repairfail.innerHTML = ("")
+                    repairfailhire.innerHTML = ("")
+                    nobike.innerHTML = ("");
+                }
+                else if (status == 2) {
+                    repairsuccess.innerHTML = ("")
+                    repairfail.innerHTML = ("")
+                    repairfailhire.innerHTML = ("Bike number " + bikeID + " does not need to be repaired. It is on hire from " + location)
+                    nobike.innerHTML = ("");
+                }
+                else if (status == 1) {
+                    repairsuccess.innerHTML = ("")
+                    repairfail.innerHTML = ("Bike number " + bikeID + " does not need to be repaired. It it available for hire at " + location)
+                    repairfailhire.innerHTML = ("")
+                    nobike.innerHTML = ("");
+                }
+                else {
+                    repairsuccess.innerHTML = ("")
+                    repairfail.innerHTML = ("")
+                    repairfailhire.innerHTML = ("")
+                    nobike.innerHTML = ("This bike does not exist.");
+                }
+
+            })
+        }
 
         $("#move-bike-btn").on("click", function() {
             $("#move-bike-form").submit()
@@ -124,6 +189,12 @@
             e.preventDefault()
 
             showLocation()
+        })
+
+        $("#repair-bike-btn").on("click", function(e) {
+            e.preventDefault()
+
+            showRepair()
         })
 
         $("#create-discount-btn").on("click", function() {
