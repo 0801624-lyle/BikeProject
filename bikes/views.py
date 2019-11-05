@@ -198,20 +198,30 @@ def return_bike(request):
         messages.info(request, f"Bike {hire.bike.pk} returned. Charges: £{hire.charges:.2f}")
 
     # redirect user to their hires page
+    else:
+        messages.error(request, "Warning: an error occurred when trying to return the bike")
     return redirect(reverse('bikes:user-hires'))
 
 @login_required
 def move_bike(request):
     """ Moves a bike from location A to location B """
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
     form = MoveBikeForm(request.POST or None)
     if form.is_valid():
         old = form.cleaned_data['location'] # get original station
-        new = form.cleaned_data['new_location'] # get new station 
-        bike = Bikes.objects.get(pk=old.bikes_set.first().id) # get bike object from database
-        bike = utils.move_bike(bike, new) # call utils method to move the bike
+        new = form.cleaned_data['new_location'] # get new station
+        try:
+            bike = Bikes.objects.get(pk=old.bikes_set.first().id) # get bike object from database
+            bike = utils.move_bike(bike, new) # call utils method to move the bike
+            messages.info(request, f"Bike {bike.pk} has been moved from {old.station_name} to {new.station_name}.")
+
+        except (AttributeError, Bikes.DoesNotExist) as e:
+            messages.error(request, f"An error occurred: station selected ({old.station_name}) does not have any bikes to move!")
         
-        messages.info(request, f"Bike {bike.pk} has been moved to {bike.location}.")
-    messages.error(request, "An error occurred while trying to move the bike")
+    else:
+        messages.error(request, "An error occurred: you cannot move a bike to the same station \
+            at which it already resides")
     return redirect(reverse('bikes:operator-index'))
     
 class RegistrationView(SuccessMessageMixin, CreateView):
@@ -352,5 +362,6 @@ def create_discount(request):
         
         discount = form.save()
         messages.info(request, f"Discount was created with code {discount.code}")
-        
+    else:
+        messages.error(request, "A problem occurred when trying to create the discount")
     return redirect(reverse('bikes:operator-index'))

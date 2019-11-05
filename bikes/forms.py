@@ -65,8 +65,19 @@ class ReturnBikeForm(forms.Form):
     discount = forms.CharField(required=False, label="Discount Code")
 
 class MoveBikeForm(forms.Form):
-    location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name')) # how do i make this list display bike count as well?
-    new_location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name'), label = "New station")
+    location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name'), required=True)
+    new_location = forms.ModelChoiceField(queryset=Location.objects.order_by('station_name'), label = "New station", required=True)
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        loc = cleaned_data.get('location')
+        loc_new = cleaned_data.get('new_location')
+
+        if loc and loc_new:
+            if loc == loc_new:
+                raise forms.ValidationError("Cannot move a bike to the same location as it previously resided")
+
 
 class BikeHireForm(forms.Form):
     bike_id = forms.IntegerField()
