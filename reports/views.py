@@ -22,7 +22,7 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import networkx as nx
 
-from bikes.choices import UserType, MembershipType
+from bikes.choices import UserType, MembershipType, BikeStatus
 from bikes.models import Bikes, Location, BikeHires, UserProfile, UserDiscounts, BikeRepairs
 from bikes.utils import ride_distance, parse_dates
 from reports.models import LocationBikeCount
@@ -373,3 +373,34 @@ def path_routes(request):
     }
 
     return render(request, 'reports/path-routes.html', context)
+
+
+def bike_status(request):
+    from bokeh.transform import cumsum
+    from bokeh.palettes import Category20c
+    bikes = Bikes.objects.all()
+    total_bikes = bikes.count()
+    num_onhire = bikes.filter(status=BikeStatus.ON_HIRE).count()
+    num_repaired = bikes.filter(status=BikeStatus.BEING_REPAIRED).count()
+    num_available = bikes.filter(status=BikeStatus.AVAILABLE).count()
+
+    statuses = [b[1] for b in BikeStatus.CHOICES]
+    counts = [b['cnt'] for b in Bikes.objects.values('status').order_by('status').annotate(cnt=Count('status'))]
+    colours = Category20c[len(counts)]
+
+    p = figure(plot_height=350, title="Current Bike Statuses", x_range=statuses)
+
+    p.vbar(x=statuses, bottom=0, top=counts, width=.8, color=colours)
+
+    script, div = components(p)
+
+    context = {
+        "total_bikes": total_bikes,
+        "num_onhire": num_onhire,
+        "num_repaired": num_repaired,
+        "num_available": num_available,
+        "script": script,
+        "div": div
+    }
+
+    return render(request, 'reports/bike-status.html', context)

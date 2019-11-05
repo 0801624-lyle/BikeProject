@@ -51,7 +51,7 @@
         </div>
 
         {% if not user.is_authenticated %}
-            <p>If you have an account already with us, <a href="{% url 'bikes:login' %}">click here</a> to login!
+            <p class="mt-3">If you have an account already with us, <a href="{% url 'bikes:login' %}">click here</a> to login!
             <p>Otherwise, <a href="{% url 'bikes:register' %}">click here</a> to register an account with us!</p>
         {% endif %}
 
