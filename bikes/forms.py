@@ -92,3 +92,6 @@ class DiscountsForm(forms.ModelForm):
      class Meta:
          model= Discounts
          fields=('__all__')
+
+class RepairBikeForm(forms.Form):
+    bike_id = forms.CharField(label="Bike ID")

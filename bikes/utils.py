@@ -57,6 +57,10 @@ def move_bike(bike, new_station):
     bike.save()
     return bike
 
+def repair_bike(bike):
+    bike.status = 1
+    bike.save()
+
 def ride_distance(hire):
     """ Calculates a ride's distance between the start and end stations
         Uses geopy.distance.distance [an implementation of geodesic distance]

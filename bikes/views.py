@@ -15,7 +15,7 @@ from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
 from .choices import MembershipType, BikeStatus, UserType
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm, DiscountsForm
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm, DiscountsForm, RepairBikeForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
 from . import utils
@@ -202,27 +202,7 @@ def return_bike(request):
         messages.error(request, "Warning: an error occurred when trying to return the bike")
     return redirect(reverse('bikes:user-hires'))
 
-@login_required
-def move_bike(request):
-    """ Moves a bike from location A to location B """
-    if not is_operator(request.user):
-        return redirect(reverse('bikes:index'))
-    form = MoveBikeForm(request.POST or None)
-    if form.is_valid():
-        old = form.cleaned_data['location'] # get original station
-        new = form.cleaned_data['new_location'] # get new station
-        try:
-            bike = Bikes.objects.get(pk=old.bikes_set.first().id) # get bike object from database
-            bike = utils.move_bike(bike, new) # call utils method to move the bike
-            messages.info(request, f"Bike {bike.pk} has been moved from {old.station_name} to {new.station_name}.")
 
-        except (AttributeError, Bikes.DoesNotExist) as e:
-            messages.error(request, f"An error occurred: station selected ({old.station_name}) does not have any bikes to move!")
-        
-    else:
-        messages.error(request, "An error occurred: you cannot move a bike to the same station \
-            at which it already resides")
-    return redirect(reverse('bikes:operator-index'))
     
 class RegistrationView(SuccessMessageMixin, CreateView):
     """ This view handles user registration """
@@ -344,9 +324,10 @@ def track_bike(request):
     try:
         bike = Bikes.objects.get(pk = bike_id)
         bike_location = bike.location
-        return JsonResponse({"bike_location" : bike_location.station_name})
+        bike_status = bike.status
+        return JsonResponse({"bike_location" : bike_location.station_name, "bike_status" : bike_status})
     except Bikes.DoesNotExist:
-        return JsonResponse({"bike_location": "None"})
+        return JsonResponse({"bike_location": "None", "bike_status" : "None"})
 
 @login_required
 def create_discount(request):
@@ -356,7 +337,7 @@ def create_discount(request):
     form = DiscountsForm(request.POST or None)
     if form.is_valid():
         code = form.cleaned_data.get('code')
-        data_from = form.cleaned_data.get('date_from', timezone.now())
+        date_from = form.cleaned_data.get('date_from', timezone.now())
         date_to = form.cleaned_data.get('date_to', timezone.now() + timezone.timedelta(days=10))
         discount_amount = form.cleaned_data.get('discount_amount')
         
@@ -364,4 +345,42 @@ def create_discount(request):
         messages.info(request, f"Discount was created with code {discount.code}")
     else:
         messages.error(request, "A problem occurred when trying to create the discount")
+    return redirect(reverse('bikes:operator-index'))
+
+@login_required
+def repair_bike(request):
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+    #form = RepairBikeForm(request.POST or None)
+    bike_id = request.POST['bike_id']
+    try:
+        bike = Bikes.objects.get(pk = bike_id)
+        bike_status = bike.status
+        bike_location = bike.location
+        utils.repair_bike(bike)
+        return JsonResponse({"bike_status" : bike_status, "bike_location": bike_location.station_name})
+    except Bikes.DoesNotExist:
+        return JsonResponse({"bike_status": "None", "bike_location": "None"})
+
+
+@login_required
+def move_bike(request):
+    """ Moves a bike from location A to location B """
+    if not is_operator(request.user):
+        return redirect(reverse('bikes:index'))
+    form = MoveBikeForm(request.POST or None)
+    if form.is_valid():
+        old = form.cleaned_data['location'] # get original station
+        new = form.cleaned_data['new_location'] # get new station
+        try:
+            bike = Bikes.objects.get(pk=old.bikes_set.first().id) # get bike object from database
+            bike = utils.move_bike(bike, new) # call utils method to move the bike
+            messages.info(request, f"Bike {bike.pk} has been moved from {old.station_name} to {new.station_name}.")
+
+        except (AttributeError, Bikes.DoesNotExist) as e:
+            messages.error(request, f"An error occurred: station selected ({old.station_name}) does not have any bikes to move!")
+        
+    else:
+        messages.error(request, "An error occurred: you cannot move a bike to the same station \
+            at which it already resides")
     return redirect(reverse('bikes:operator-index'))
