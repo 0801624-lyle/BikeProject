@@ -15,7 +15,7 @@ from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
 from .choices import MembershipType, BikeStatus, UserType
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm, DiscountsForm, RepairBikeForm
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm, DiscountsForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
 from . import utils
@@ -301,17 +301,20 @@ def is_operator(user):
 
     return user.userprofile.user_type == UserType.OPERATOR or user.userprofile.user_type == UserType.MANAGER
 
+@csrf_exempt
 @login_required
 def operator_index(request):
     if not is_operator(request.user):
         return redirect(reverse('bikes:index'))
 
     trackurl = reverse('bikes:track_bike')
+    repairurl = reverse('bikes:repair-bike')
     discount_form = DiscountsForm()
     context = {
         "form" : MoveBikeForm(),
         "trackurl": trackurl,
         "discount_form": discount_form,
+        "repairurl" : repairurl,
     }
     return render(request, 'bikes/operator_index.html',context)
 
@@ -347,11 +350,11 @@ def create_discount(request):
         messages.error(request, "A problem occurred when trying to create the discount")
     return redirect(reverse('bikes:operator-index'))
 
+@csrf_exempt
 @login_required
 def repair_bike(request):
     if not is_operator(request.user):
         return redirect(reverse('bikes:index'))
-    #form = RepairBikeForm(request.POST or None)
     bike_id = request.POST['bike_id']
     try:
         bike = Bikes.objects.get(pk = bike_id)
