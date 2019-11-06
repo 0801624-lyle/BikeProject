@@ -58,6 +58,8 @@ def move_bike(bike, new_station):
     return bike
 
 def repair_bike(bike):
+    # change the status of the bike to repaired
+    print("hello")
     bike.status = 1
     bike.save()
 
