@@ -144,7 +144,10 @@
     });
 
     $("#add-funds-btn").on("click", function() {
-        $("#add-funds-form").submit()
+        var toAdd = $("#add-balance-input").val()
+        if (toAdd) {
+            $("#add-funds-form").submit()
+        }
 
     })
 
