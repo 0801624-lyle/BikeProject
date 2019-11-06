@@ -359,9 +359,9 @@ def repair_bike(request):
 
     if repair_form.is_valid():
         bike = repair_form.cleaned_data['bike']
-        utils.repair_bike(bike)
-        messages.success(request, f"Bike {bike.pk} was repaired, and is now available at \
-            {bike.location.station_name} station")
+        cost = utils.repair_bike(bike)
+        messages.success(request, f"Bike {bike.pk} was repaired at cost of £{cost}, and is now available at \
+            {bike.location.station_name} station.")
     else:
         messages.error(request, "There was a problem repairing that bike. Please try again")
     return redirect(reverse('bikes:operator-index'))

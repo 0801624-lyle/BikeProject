@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import datetime
+import random
 
 from django.db.models import F
 from django.utils import timezone
@@ -59,9 +60,13 @@ def move_bike(bike, new_station):
 
 def repair_bike(bike):
     # change the status of the bike to repaired
-    print("hello")
     bike.status = 1
+    # generate repair "cost" - between 2 and 40 with values <= 30 more likely
+    cost = random.randint(2, 40)
+    if cost > 30 and random.random() < .5:
+        cost = cost // 2
     bike.save()
+    return cost
 
 def ride_distance(hire):
     """ Calculates a ride's distance between the start and end stations
