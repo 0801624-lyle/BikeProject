@@ -4,7 +4,9 @@
 
 The application uses the Django framework and Python 3.* for the backend implementation of the project. Additional Python tools such as *NumPy*, *Matplotlib*, *Bokeh*, *GeoPy* and *Networkx* are used to deliver some of the analysis and visualization features of the project. 
 
-The database used in **sqlite**, but this can be easily switched out for MySQL or PostgreSQL (note: to do this, you must edit the project's `settings.py` file and provide database connection information. Additional packages will also need to be installed, for example the *psycopg2* package for enabling operations on the PostgreSQL database.).
+The database used in **sqlite**, but this can be easily switched out for MySQL or PostgreSQL. The migration-related commands outlined in the **setup** section below will take care of creating this database from scratch.
+
+Note: use an alternative database, you must edit the project's `settings.py` file and provide database connection information. Additional packages will also need to be installed, for example the *psycopg2* package for enabling operations on the PostgreSQL database.
 
 The front end of the application is delivered using standard front-end web technologies, such as HTML for structuring content, CSS for design (and the Bootstrap framework), and JavaScript/jQuery for implementation of interactive functionality and AJAX requests.
 
