@@ -97,6 +97,10 @@
 
 {% block js %}
 
+
+<script src="{% static 'js/moment.js' %}"></script>
+<script script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+
     <script>
         function showLocation() {
                 var url = "{{ trackurl|safe }}"
@@ -200,6 +204,40 @@
         $("#create-discount-btn").on("click", function() {
             $("#create-discount-form").submit()
         })
+
+    var picker_from = new Pikaday({
+        field: document.getElementById("id_date_from"),
+        format: 'DD-MM-YYYY',
+        onSelect: function(date) {
+            picker_to.config({
+                minDate: this.getDate()
+            })
+            
+            checkDateInputs()
+        }
+    });
+
+    var picker_to = new Pikaday({
+        field: document.getElementById("id_date_to"),
+        format: 'DD-MM-YYYY',
+        onSelect: function() {
+            picker_from.config({
+                maxDate: this.getDate()
+            })
+            checkDateInputs()
+        }
+    })
+
+    function checkDateInputs() {
+        var from = $("#id_date_from").val()
+        console.log(from)
+        var to = $("#id_date_to").val()
+        if (from.length == 0 || to.length == 0) {
+            $("#create-discount-btn").prop("disabled", true)
+        } else {
+            $("#create-discount-btn").prop("disabled", false)
+        }
+    }
             
     </script>
 

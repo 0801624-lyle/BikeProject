@@ -339,14 +339,10 @@ def create_discount(request):
 
     form = DiscountsForm(request.POST or None)
     if form.is_valid():
-        code = form.cleaned_data.get('code')
-        date_from = form.cleaned_data.get('date_from', timezone.now())
-        date_to = form.cleaned_data.get('date_to', timezone.now() + timezone.timedelta(days=10))
-        discount_amount = form.cleaned_data.get('discount_amount')
-        
         discount = form.save()
         messages.info(request, f"Discount was created with code {discount.code}")
     else:
+        print(form.errors)
         messages.error(request, "A problem occurred when trying to create the discount")
     return redirect(reverse('bikes:operator-index'))
 

@@ -38,12 +38,6 @@ class CostCalculator():
         
         # apply the discount if applicable
         return self.apply_discount(total)
-        # discount = self.hire.discount_applied
-        # if discount is not None and timezone.now().date() <= discount.date_to:
-        #     saved_with_discount = total - (total * discount.discount_amount)
-        #     total *= discount.discount_amount
-            
-        # return total, saved_with_discount
 
     def apply_discount(self, total):
         discount = self.hire.discount_applied

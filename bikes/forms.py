@@ -89,6 +89,45 @@ class BikeRepairsForm(forms.ModelForm):
         fields=('bike',)
 
 class DiscountsForm(forms.ModelForm):
-     class Meta:
-         model= Discounts
-         fields=('__all__')
+    date_from = forms.DateField(
+        widget=forms.DateInput(format='%d-%m-%Y'),
+        input_formats=('%d-%m-%Y', )
+    )
+    date_to = forms.DateField(
+        widget=forms.DateInput(format='%d-%m-%Y'),
+        input_formats=('%d-%m-%Y', )
+    )
+    discount_amount = forms.FloatField(label="Discount Amount (%)")
+
+    class Meta:
+        model= Discounts
+        fields=('__all__')
+
+    def clean_discount_amount(self):
+        """ Bind the discount to between 0 and 100% """
+        amount = self.cleaned_data.get('discount_amount')
+        if amount is None:
+            raise ValidationError("No discount percentage specified")
+        if not 0 < amount <= 100:
+            raise ValidationError("Invalid discount entered")
+
+        # reduce to fraction
+        amount /= 100
+        return amount
+
+    def clean(self):
+        """ Check date-to is after date-from """
+        cleaned_data = super().clean()
+        dfrom = cleaned_data.get('date_from')
+        dto = cleaned_data.get('date_to')
+        
+        if dfrom is None or dto is None:
+            raise ValidationError("No dates entered for discount")
+        if dfrom > dto:
+            raise ValidationError("Date from cannot be greater than date to.")
+
+    def __init__(self, *args, **kwargs):
+        """ Disable autocomplete on the date fields """
+        super().__init__(*args, **kwargs)
+        self.fields['date_from'].widget.attrs.update({"autocomplete": "off"})
+        self.fields['date_to'].widget.attrs.update({"autocomplete": "off"})
