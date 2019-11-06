@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
-from .choices import MembershipType
+from .choices import MembershipType, BikeStatus
 from .models import UserProfile, Bikes,BikeRepairs, Location,Discounts
 
 # For registering new users
@@ -83,10 +83,15 @@ class BikeHireForm(forms.Form):
     bike_id = forms.IntegerField()
 
 class BikeRepairsForm(forms.ModelForm):
+    """ Form that reports a bike for repair """
 
     class Meta:
         model= BikeRepairs
         fields=('bike',)
+
+class RepairBikeForm(forms.Form):
+    """ Form that repairs a bike """
+    bike = forms.ModelChoiceField(queryset=Bikes.objects.filter(status=BikeStatus.BEING_REPAIRED))
 
 class DiscountsForm(forms.ModelForm):
     date_from = forms.DateField(
@@ -120,7 +125,7 @@ class DiscountsForm(forms.ModelForm):
         cleaned_data = super().clean()
         dfrom = cleaned_data.get('date_from')
         dto = cleaned_data.get('date_to')
-        
+
         if dfrom is None or dto is None:
             raise ValidationError("No dates entered for discount")
         if dfrom > dto:

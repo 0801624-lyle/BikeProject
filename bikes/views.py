@@ -15,7 +15,8 @@ from rest_framework.generics import ListAPIView
 
 from .cost_calculator import CostCalculator
 from .choices import MembershipType, BikeStatus, UserType
-from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, MoveBikeForm, DiscountsForm
+from .forms import RegistrationForm, UserProfileForm, BikeHireForm, ReturnBikeForm, BikeRepairsForm, \
+    MoveBikeForm, DiscountsForm, RepairBikeForm
 from .models import Location, UserProfile, BikeHires, Bikes, Discounts, BikeRepairs
 from .serializers import LocationSerializer
 from . import utils
@@ -309,12 +310,14 @@ def operator_index(request):
 
     trackurl = reverse('bikes:track_bike')
     repairurl = reverse('bikes:repair-bike')
+    repairform = RepairBikeForm()
     discount_form = DiscountsForm()
     context = {
         "form" : MoveBikeForm(),
         "trackurl": trackurl,
         "discount_form": discount_form,
         "repairurl" : repairurl,
+        "repairform": repairform,
     }
     return render(request, 'bikes/operator_index.html',context)
 
@@ -351,15 +354,17 @@ def create_discount(request):
 def repair_bike(request):
     if not is_operator(request.user):
         return redirect(reverse('bikes:index'))
-    bike_id = request.POST['bike_id']
-    try:
-        bike = Bikes.objects.get(pk = bike_id)
-        bike_status = bike.status
-        bike_location = bike.location
+
+    repair_form = RepairBikeForm(request.POST or None)
+
+    if repair_form.is_valid():
+        bike = repair_form.cleaned_data['bike']
         utils.repair_bike(bike)
-        return JsonResponse({"bike_status" : bike_status, "bike_location": bike_location.station_name})
-    except Bikes.DoesNotExist:
-        return JsonResponse({"bike_status": "None", "bike_location": "None"})
+        messages.success(request, f"Bike {bike.pk} was repaired, and is now available at \
+            {bike.location.station_name} station")
+    else:
+        messages.error(request, "There was a problem repairing that bike. Please try again")
+    return redirect(reverse('bikes:operator-index'))
 
 
 @login_required

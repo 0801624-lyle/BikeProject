@@ -1,3 +1,4 @@
+{% load bikes_filters %}
 <div id="repair-bike-modal" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -8,16 +9,9 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Enter the ID of a bike:</p>
-                  <input type="number" class="form-control" name="bike-id" id="repair-bike-input">
-              <p class="mt-2 text-success" id = "repair-success">
-              </p>
-              <p class="mt-2 text-danger" id = "repair-fail">
-              </p>
-              <p class="mt-2 text-danger" id = "repair-fail-hire">
-              </p>
-              <p class="mt-2 text-danger" id = "no-bike-repair">
-                </p>
+          <form action="{% url 'bikes:repair-bike' %}" method="POST" id="repair-bike-forms">
+              {{ repairform.bike|add_class:"form-control" }}
+          </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" id="repair-bike-btn">Repair bike</button>

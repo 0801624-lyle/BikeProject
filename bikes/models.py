@@ -29,6 +29,10 @@ class Bikes(models.Model):
         user.current_hire = bike_hire
         user.save()
 
+    def __str__(self):
+        if self.location is not None:
+            return f"Bike {self.pk}, at {self.location.station_name}"
+        return f"Bike {self.pk}"
     class Meta:
         ordering = ('last_hired',)
 
