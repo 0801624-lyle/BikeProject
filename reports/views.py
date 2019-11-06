@@ -387,11 +387,10 @@ def bike_status(request):
 
     statuses = [b[1] for b in BikeStatus.CHOICES]
     counts = [b['cnt'] for b in Bikes.objects.values('status').order_by('status').annotate(cnt=Count('status'))]
-    colours = Category20c[len(counts)]
 
     p = figure(plot_height=350, title="Current Bike Statuses", x_range=statuses)
 
-    p.vbar(x=statuses, bottom=0, top=counts, width=.8, color=colours)
+    p.vbar(x=statuses, bottom=0, top=counts, width=.8)
 
     script, div = components(p)
 
