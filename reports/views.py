@@ -184,7 +184,7 @@ def financial_report(request):
     maximum_charges = BikeHires.objects.annotate(max_charge=Max('charges')).order_by('-max_charge')[0]
 
     # get hire charges ordered from smallest to largest charge
-    hires_by_charge = hires.order_by('charges').values('charges')
+    hires_by_charge = hires.order_by('charges').values('charges').filter(charges__isnull=False)
 
     # create a histogram showing distribution of bike charges    
     arr = np.array([h['charges'] for h in list(hires_by_charge)])
@@ -207,7 +207,7 @@ def financial_report(request):
     discount_pct = hires.aggregate(has_dis=Count('discount_applied'))['has_dis'] / hires.count() * 100
 
     # charges per month
-    charges_by_month = hires.values('date_hired', 'charges').order_by('date_hired')
+    charges_by_month = hires.values('date_hired', 'charges').order_by('date_hired').filter(charges__isnull=False)
     hbm = {
         k: sum(v['charges'] for v in list(v)) \
             for k,v in groupby(charges_by_month, key=lambda date: date['date_hired'].month)
