@@ -78,7 +78,7 @@ def profile(request):
     current_user = UserProfile.objects.get(user=user)
 
     # filter out the user's rides from the database
-    user_rides = BikeHires.objects.filter(user=current_user)
+    user_rides = BikeHires.objects.filter(user=current_user, end_station__isnull=False)
     # get the total number of rides the user has taken
     num_bike_rides = user_rides.count()
 
