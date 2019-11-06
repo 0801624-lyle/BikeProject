@@ -138,13 +138,13 @@ def user_report(request):
         .order_by('total')
 
     # hires_by_month 
-    hires_by_month = hires.values('date_hired').order_by('date_hired')
+    hires_by_month = hires.values('date_hired').order_by('date_hired').filter(end_station__isnull=False)
     num_hires_per_month = {
         k: len(list(v)) for k,v in groupby(hires_by_month, key=lambda date: date['date_hired'].month)
     }
 
     # total distance cycles
-    total_distance_cycled = sum([ride_distance(hire).km for hire in hires])
+    total_distance_cycled = sum([ride_distance(hire).km for hire in hires if hire.end_station is not None])
 
     # number of rides per user type
     hires_per_usertype = hires.values('user__membership_type').order_by('user__membership_type') \
@@ -311,8 +311,8 @@ def path_routes(request):
             .values('end_station').order_by('end_station').annotate(cnt=Count('end_station'))
     else:
         # get number of rides from given station to all other stations
-        ride_counts = BikeHires.objects.filter(start_station=station).values('end_station') \
-            .order_by('end_station').annotate(cnt=Count('end_station'))
+        ride_counts = BikeHires.objects.filter(start_station=station, end_station__isnull=False) \
+            .values('end_station').order_by('end_station').annotate(cnt=Count('end_station'))
 
     # add edges to the graphs for all rides
     for hire in station_links:
@@ -322,7 +322,8 @@ def path_routes(request):
 
     # construct journey counts formatted for adding label to each edge in the graph
     edge_counts = {
-        (station.station_name, Location.objects.get(pk=e['end_station']).station_name): e['cnt'] for e in ride_counts
+        (station.station_name, 
+        Location.objects.get(pk=e['end_station']).station_name): e['cnt'] for e in ride_counts
     }
 
     # remove self loops from the graph
