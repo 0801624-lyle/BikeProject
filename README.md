@@ -2,7 +2,9 @@
 
 ## Technical Overview
 
-The application uses the Django framework and Python 3.* for the backend implementation of the project. Additional Python tools such as *NumPy*, *Matplotlib*, *Bokeh*, *GeoPy* and *Networkx* are used to deliver some of the analysis and visualization features of the project. The database to be used in **sqlite**, but this can be easily switched out for MySQL or PostgreSQL (note: to do this, you must edit the project's `settings.py` file and provide database connection information. Additional packages will also need to be installed, for example the *psycopg2* package for enabling operations on the PostgreSQL database.).
+The application uses the Django framework and Python 3.* for the backend implementation of the project. Additional Python tools such as *NumPy*, *Matplotlib*, *Bokeh*, *GeoPy* and *Networkx* are used to deliver some of the analysis and visualization features of the project. 
+
+The database used in **sqlite**, but this can be easily switched out for MySQL or PostgreSQL (note: to do this, you must edit the project's `settings.py` file and provide database connection information. Additional packages will also need to be installed, for example the *psycopg2* package for enabling operations on the PostgreSQL database.).
 
 The front end of the application is delivered using standard front-end web technologies, such as HTML for structuring content, CSS for design (and the Bootstrap framework), and JavaScript/jQuery for implementation of interactive functionality and AJAX requests.
 
@@ -18,7 +20,7 @@ Once in the correct location, the following commands should be run (in this orde
 
 3. `python manage.py migrate` - this command will create the SQLite database from the migrations created above
 
-4. `python manage.py add_bike_data` - this command will generate "fake" historical data for the application.
+4. `python manage.py add_bike_data` - this command will generate a set of bikes, locations and users for the application, as well as "fake" historical data for the application.
 
 5. `python manage.py runserver` - this command will run the development server, allowing the user to test the application at the link: `localhost:8000
 
